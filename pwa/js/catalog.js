@@ -40,13 +40,25 @@ const Catalog = (() => {
     return allEntries.find((e) => e.code === 'SYS-FREQ');
   }
 
+  // SYS (rejestry poza tabelami PAR: ACC/dEC/drv/Frq/FREQ) i dr (m.in. Jog
+  // Freq/Acc/Dec) na górze listy — najczęściej potrzebne przy pierwszym
+  // uruchomieniu falownika, reszta grup alfabetycznie za nimi.
+  const GROUP_ORDER = ['SYS', 'dr'];
+  function groupSortKey(group) {
+    const idx = GROUP_ORDER.indexOf(group);
+    return idx === -1 ? GROUP_ORDER.length : idx;
+  }
+
   function groupBy(entries) {
     const groups = new Map();
     for (const e of entries) {
       if (!groups.has(e.group)) groups.set(e.group, { group: e.group, groupName: e.group_name, entries: [] });
       groups.get(e.group).entries.push(e);
     }
-    return Array.from(groups.values()).sort((a, b) => a.group.localeCompare(b.group));
+    return Array.from(groups.values()).sort((a, b) => {
+      const keyDiff = groupSortKey(a.group) - groupSortKey(b.group);
+      return keyDiff !== 0 ? keyDiff : a.group.localeCompare(b.group);
+    });
   }
 
   // Grupa CM = ryzykowna (zapis może zerwać połączenie Modbus z falownikiem, sekcja 2/5.3 spec).

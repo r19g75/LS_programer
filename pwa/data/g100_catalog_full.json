@@ -5240,6 +5240,34 @@
     "setting_range_pdf": "0 Rpm | 1 mpm"
   },
   {
+    "code": "SYS-DRV",
+    "group": "SYS",
+    "group_name": "System (rejestry specjalne spoza tabel PAR)",
+    "register": "0h1D02",
+    "pdu_address": "0h1D02",
+    "name_approx": "Operation Group drv (źródło komendy Run/Stop: 0=Keypad, 1=Fx/Rx-1/terminal)",
+    "name_confidence": "empirical_previous_project",
+    "setting_range": "0: Keypad | 1: Fx/Rx-1 (terminal)",
+    "initial_value": "",
+    "write_during_op": "",
+    "manual_page": "",
+    "usage_note": "Potwierdzone empirycznie w poprzednim projekcie (Cloner G100 v2, PROJECT_STATE.md): 0x1D02 = Op.drv. Poza tabelami PAR (Operation group). Adresowanie BEZ offsetu -1 (rejestr == pdu_address)."
+  },
+  {
+    "code": "SYS-FRQSRC",
+    "group": "SYS",
+    "group_name": "System (rejestry specjalne spoza tabel PAR)",
+    "register": "0h1D03",
+    "pdu_address": "0h1D03",
+    "name_approx": "Operation Group Frq (źródło częstotliwości zadanej: 0=Keypad-1, 2=V1, 5=I2)",
+    "name_confidence": "empirical_previous_project",
+    "setting_range": "0: Keypad-1 | 1 Keypad-2 | 2 V1 | 4 V0 | 5 I2 | 6 Int 485",
+    "initial_value": "",
+    "write_during_op": "",
+    "manual_page": "",
+    "usage_note": "Potwierdzone empirycznie w poprzednim projekcie (Cloner G100 v2, PROJECT_STATE.md): 0x1D03 = Op.Frq. Poza tabelami PAR (Operation group). Adresowanie BEZ offsetu -1. To jest rejestr wymagany przez procedurę trwałego zapisu częstotliwości (przełączenie na Keypad-1 przed zapisem SYS-FREQ) — patrz sekcja 4.6 spec i usage_note w SYS-FREQ."
+  },
+  {
     "code": "SYS-ACC",
     "group": "SYS",
     "group_name": "System (rejestry specjalne spoza tabel PAR)",
