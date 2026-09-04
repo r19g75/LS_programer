@@ -5299,14 +5299,14 @@
     "code": "SYS-FREQ",
     "group": "SYS",
     "group_name": "System (rejestry specjalne spoza tabel PAR)",
-    "register": "0h0380",
-    "pdu_address": "0h0380",
-    "name_approx": "Żywa częstotliwość zadana (Common/Control Area, ten sam rejestr co ręczny wpis z klawiatury)",
-    "name_confidence": "manual_from_reference_doc",
+    "register": "0h0004",
+    "pdu_address": "0h0004",
+    "name_approx": "Żywa częstotliwość zadana (Common Area, ten sam rejestr co ręczny wpis z klawiatury)",
+    "name_confidence": "empirical_on_hardware",
     "setting_range": "0.00–Maximum frequency (Hz)",
     "initial_value": "",
     "write_during_op": "O",
     "manual_page": "236",
-    "usage_note": "ZMIENIONE 2026-09-04 po tescie na sprzecie: pierwotny adres 0h1D04 (procedura z sekcji 4.6 spec: zrodlo Keypad-1 + zapis + SAVE) nie przetrwal power-cycle mimo poprawnego zapisu (potwierdzone odczytem) i sukcesu SAVE - mechanizm z manuala nie zadzialal jak udokumentowano na tym firmware/egzemplarzu. Zmieniono na 0h0380 (Control Area, 'Common area frequency address' z tej samej sekcji manuala) - ten sam rejestr, ktory aktualizuje sie przy recznym wpisaniu czestotliwosci z klawiatury (widoczne na wyswietlaczu, dziala natychmiast). UWAGA: zapis tutaj jest ZYWY - wplywa na biezaca prace falownika od razu, i wedlug manuala NIE przetrwa power-cycle (proba trwalego zapisu przez 0h1D04 nie zadzialala empirycznie, wiec trwalosc pozostaje nierozwiazana)."
+    "usage_note": "POTWIERDZONE EMPIRYCZNIE 2026-09-04: sweep FC03 addr=0h0000 qty=16 po recznym wpisaniu 37.50 Hz na klawiaturze (Frq=Keypad-1) pokazal wartosc 3750 (37.50 x100) dokladnie na pozycji 0h0004. Manual cytuje ten rejestr jako '0h0005' - kolejny przypadek offsetu -1 wzgledem dokumentacji (ten sam wzorzec co w grupach PAR poza dr/SYS). Wczesniejsze proby (0h1D04 - procedura trwalego zapisu z sekcji 4.6, nie przetrwala power-cycle mimo sukcesu zapisu+SAVE; 0h0380 - przyjmowal zapis ale nie byl widoczny na wyswietlaczu) byly bledne, zastapione tym potwierdzonym adresem. Zapis tutaj jest ZYWY - wplywa na biezaca prace falownika od razu. Trwalosc po power-cycle NIE zweryfikowana (do przetestowania: napisz tu wartosc, SAVE, power-cycle, sprawdz)."
   }
 ]
