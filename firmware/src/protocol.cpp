@@ -28,6 +28,28 @@ String errorResponse(long seq, const char *error) {
     serializeJson(doc, out);
     return out;
 }
+
+// Jak errorResponse, ale dokłada hex-dump surowej odpowiedzi Modbus (jeśli coś
+// w ogóle przyszło) — jedyny sposób na wgląd w diagnostykę, skoro Serial jest
+// teraz zajęty przez RS-485 i nie może służyć do logów (patrz main.cpp).
+String errorResponseWithRaw(long seq, const char *error, const ModbusResult &res) {
+    JsonDocument doc;
+    doc["seq"] = seq;
+    doc["ok"] = false;
+    doc["error"] = error;
+    if (res.rawResponseLen > 0) {
+        String hex;
+        for (uint8_t i = 0; i < res.rawResponseLen; i++) {
+            char buf[4];
+            snprintf(buf, sizeof(buf), "%02X ", res.rawResponse[i]);
+            hex += buf;
+        }
+        doc["raw"] = hex;
+    }
+    String out;
+    serializeJson(doc, out);
+    return out;
+}
 } // namespace
 
 String ProtocolHandler::handleRequest(const String &requestJson) {
@@ -68,7 +90,7 @@ String ProtocolHandler::handleRequest(const String &requestJson) {
                 serializeJson(d, out);
                 return out;
             }
-            return errorResponse(seq, statusToError(res.status));
+            return errorResponseWithRaw(seq, statusToError(res.status), res);
         }
 
         JsonDocument d;
@@ -108,7 +130,7 @@ String ProtocolHandler::handleRequest(const String &requestJson) {
                 serializeJson(d, out);
                 return out;
             }
-            return errorResponse(seq, statusToError(res.status));
+            return errorResponseWithRaw(seq, statusToError(res.status), res);
         }
 
         JsonDocument d;

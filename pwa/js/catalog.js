@@ -54,12 +54,6 @@ const Catalog = (() => {
     return group === 'CM';
   }
 
-  function pduAddressToNumber(entry) {
-    // pdu_address zapisany jako string hex "0hXXXX"
-    const s = String(entry.pdu_address).replace(/^0h/i, '');
-    return parseInt(s, 16);
-  }
-
   return {
     load,
     all,
@@ -70,6 +64,5 @@ const Catalog = (() => {
     getSysFreqEntry,
     groupBy,
     isRiskyGroup,
-    pduAddressToNumber,
   };
 })();

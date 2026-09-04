@@ -20,6 +20,8 @@ struct ModbusResult {
     uint8_t exceptionCode;      // ważne tylko gdy status == ERR_EXCEPTION
     uint16_t values[125];       // max rejestrów w jednej odpowiedzi FC03/04 (Modbus spec)
     uint8_t valueCount;
+    uint8_t rawResponse[16];    // pierwsze bajty surowej odpowiedzi — diagnostyka błędów (do wglądu w PWA)
+    uint8_t rawResponseLen;     // ile bajtów faktycznie odebrano (może być > 16, wtedy rawResponse ucięty)
 };
 
 class ModbusRtu {

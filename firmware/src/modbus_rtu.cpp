@@ -41,6 +41,7 @@ void ModbusRtu::sendFrame(uint8_t *frame, size_t len) {
     _serial->write(frame, len + 2);
     _serial->flush(); // czekaj aż fizycznie wyjdzie z UART przed przełączeniem na odbiór
     setDriverEnable(false);
+    delay(5); // zapas na fizyczne odwrócenie kierunku (shield DFR0259 auto-direction) przed nasłuchem
 }
 
 size_t ModbusRtu::receiveFrame(uint8_t *buf, size_t maxLen, uint32_t timeoutMs) {
@@ -59,8 +60,8 @@ size_t ModbusRtu::receiveFrame(uint8_t *buf, size_t maxLen, uint32_t timeoutMs) 
         if (_serial->available()) {
             buf[count++] = _serial->read();
             lastByteMs = millis();
-        } else if (millis() - lastByteMs > 10) {
-            break; // cisza > 10ms = koniec ramki przy 9600bps
+        } else if (millis() - lastByteMs > 20) {
+            break; // cisza > 20ms = koniec ramki (wartość sprawdzona w poprzednim projekcie na tym sprzęcie)
         }
     }
     return count;
@@ -91,6 +92,8 @@ ModbusResult ModbusRtu::readRegisters(uint8_t slave, uint8_t functionCode, uint1
         result.status = ModbusStatus::ERR_TIMEOUT;
         return result;
     }
+    result.rawResponseLen = (uint8_t)min(n, sizeof(result.rawResponse));
+    memcpy(result.rawResponse, resp, result.rawResponseLen);
     if (n < 5) {
         result.status = ModbusStatus::ERR_BAD_RESPONSE;
         return result;
@@ -146,6 +149,8 @@ ModbusResult ModbusRtu::writeSingleRegister(uint8_t slave, uint16_t pduAddress, 
         result.status = ModbusStatus::ERR_TIMEOUT;
         return result;
     }
+    result.rawResponseLen = (uint8_t)min(n, sizeof(result.rawResponse));
+    memcpy(result.rawResponse, resp, result.rawResponseLen);
     if (n < 5) {
         result.status = ModbusStatus::ERR_BAD_RESPONSE;
         return result;
@@ -207,6 +212,8 @@ ModbusResult ModbusRtu::writeMultipleRegisters(uint8_t slave, uint16_t pduAddres
         result.status = ModbusStatus::ERR_TIMEOUT;
         return result;
     }
+    result.rawResponseLen = (uint8_t)min(n, sizeof(result.rawResponse));
+    memcpy(result.rawResponse, resp, result.rawResponseLen);
     if (n < 5) {
         result.status = ModbusStatus::ERR_BAD_RESPONSE;
         return result;

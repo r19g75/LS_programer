@@ -1,6 +1,12 @@
 // Buduje transakcje Modbus (przez ble-client) na podstawie katalogu parametrów
-// i stosuje skalowanie z scaling.js. Adres PDU = pdu_address z katalogu
-// (rekomendacja sekcji 4.3 spec: PDU = register-1, DO ZWERYFIKOWANIA na sprzęcie).
+// i stosuje skalowanie z scaling.js.
+//
+// Adresowanie PDU (sekcja 4.3 spec): katalog ma dwa pola, `register` (adres
+// z manuala) i `pdu_address` (wyliczony jako register-1, wg "rekomendacji"
+// spec). Zweryfikowane empirycznie na tym sprzęcie (poprzedni projekt
+// Cloner, G100Registers.h: "dr.14 -> 0x110E POTWIERDZONE" == grupa*0x100 +
+// kod, czyli DOKŁADNIE `register`, BEZ offsetu -1) — G100 na wire oczekuje
+// `register` wprost. Świadomie używamy `register`, nie `pdu_address`.
 
 const ModbusClient = (() => {
   let seqCounter = 1;
@@ -10,7 +16,7 @@ const ModbusClient = (() => {
   }
 
   function pduHex(entry) {
-    return String(entry.pdu_address); // już w formacie "0hXXXX", firmware parsuje bezpośrednio
+    return String(entry.register); // potwierdzone empirycznie: BEZ offsetu -1, patrz komentarz wyżej
   }
 
   // Odczyt pojedynczo po parametrze (prostsze i bezpieczniejsze niż batchowanie
