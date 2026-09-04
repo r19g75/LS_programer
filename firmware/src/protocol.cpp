@@ -41,7 +41,11 @@ String ProtocolHandler::handleRequest(const String &requestJson) {
     const char *op = doc["op"] | "";
     int slave = doc["slave"] | -1;
     int fc = doc["fc"] | -1;
-    const char *addrStr = doc["addr"] | nullptr;
+    // UWAGA: `doc["addr"] | nullptr` myli dedukcje typu szablonu ArduinoJson
+    // (T wychodzi jako std::nullptr_t zamiast const char*) i zawsze zwraca
+    // nullptr niezaleznie od zawartosci JSON - stad jawne sprawdzenie typu.
+    JsonVariantConst addrVar = doc["addr"];
+    const char *addrStr = addrVar.is<const char *>() ? addrVar.as<const char *>() : nullptr;
 
     if (slave < 1 || slave > 250) return errorResponse(seq, "invalid_slave");
     if (!addrStr) return errorResponse(seq, "missing_addr");
