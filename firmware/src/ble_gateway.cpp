@@ -63,13 +63,18 @@ void BleGateway::_handleDisconnect() {
 }
 
 uint16_t BleGateway::currentChunkSize() const {
-    uint16_t mtu = BLE_FRAGMENT_FALLBACK_MTU;
-    if (_server && _connected) {
-        uint16_t peerMtu = _server->getPeerMTU(_connHandle);
-        if (peerMtu > 0) mtu = peerMtu;
+    uint16_t peerMtu = (_server && _connected) ? _server->getPeerMTU(_connHandle) : 0;
+
+    if (peerMtu > 0) {
+        // MTU negocjowany — trzeba jeszcze odjąć narzut ATT notify (3B).
+        if (peerMtu <= 3 + BLE_FRAGMENT_HEADER_LEN) return 1; // skrajny fallback, nie powinno wystąpić
+        return peerMtu - 3 - BLE_FRAGMENT_HEADER_LEN;
     }
-    if (mtu <= 3 + BLE_FRAGMENT_HEADER_LEN) return 1; // skrajny fallback, nie powinno wystąpić
-    return mtu - 3 - BLE_FRAGMENT_HEADER_LEN; // -3 = ATT notify overhead
+
+    // Brak negocjacji — BLE_FRAGMENT_FALLBACK_MTU to już użyteczny payload
+    // (niewynegocjowane MTU=23 minus narzut ATT=3), więc odejmujemy tylko nagłówek.
+    if (BLE_FRAGMENT_FALLBACK_MTU <= BLE_FRAGMENT_HEADER_LEN) return 1;
+    return BLE_FRAGMENT_FALLBACK_MTU - BLE_FRAGMENT_HEADER_LEN;
 }
 
 void BleGateway::_handleRxFragment(const uint8_t *data, size_t len) {

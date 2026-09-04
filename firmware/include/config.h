@@ -14,7 +14,11 @@
 #define MODBUS_RESPONSE_TIMEOUT_MS   200
 #define MODBUS_T35_GAP_US            4000   // odstęp międzyramkowy T3.5 @9600bps
 
-// BLE — UUID-y własnego serwisu gateway (wygenerowane losowo dla tego projektu)
+// BLE — UUID-y serwisu gateway. To standardowe UUID-y Nordic UART Service (NUS),
+// NIE losowe — użyte celowo, bo część generycznych aplikacji-terminali BLE
+// rozpoznaje je automatycznie jako UART (RX/TX), co ułatwia debugowanie surowego
+// strumienia bez własnej apki. Protokół ramek (patrz ble_gateway.h) jest mimo to
+// własny, więc taka apka pokaże tylko surowe bajty, nie sparsuje JSON-a.
 #define BLE_DEVICE_NAME        "G100-Gateway"
 #define BLE_SERVICE_UUID        "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
 #define BLE_CHAR_RX_UUID         "6e400002-b5a3-f393-e0a9-e50e24dcca9e" // phone -> ESP32 (write / write-no-response)

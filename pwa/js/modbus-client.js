@@ -17,10 +17,9 @@ const ModbusClient = (() => {
   // przez ewentualne dziury w mapie rejestrów; wystarczające dla zestawu
   // wybranych w konfiguracji parametrów, nie wszystkich 375 na raz).
   async function readEntry(slave, entry) {
-    const req = { seq: nextSeq(), op: 'read', slave, fc: 4, addr: pduHex(entry), qty: 1 };
-    // FC04 (Input Register) jest bezpiecznym wyborem do odczytu monitoringu,
-    // ale PAR-area w G100 czyta się przez FC03 (Holding Register) — patrz sekcja 4.2 spec.
-    req.fc = 3;
+    // PAR-area w G100 czyta się przez FC03 (Holding Register), nie FC04
+    // (Input Register) — patrz sekcja 4.2 spec.
+    const req = { seq: nextSeq(), op: 'read', slave, fc: 3, addr: pduHex(entry), qty: 1 };
     const resp = await bleClient.sendRequest(req);
     if (!resp.ok) throw new ModbusError(entry, resp.error, resp.exception_code);
     const raw = resp.values[0];
