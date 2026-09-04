@@ -55,7 +55,7 @@ const UI = (() => {
   function statusBadge(status) {
     if (!status) return '';
     if (status.pending) return '<span class="param-status">...</span>';
-    if (status.error) return `<span class="param-status status-err" title="${escapeHtml(status.error)}">błąd</span>`;
+    if (status.error) return `<span class="param-status status-err">błąd: ${escapeHtml(status.error)}</span>`;
     if (status.verify) {
       return status.verify.match
         ? '<span class="param-status status-ok">✓ zweryfikowano</span>'
