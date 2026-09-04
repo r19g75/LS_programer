@@ -1,12 +1,20 @@
 // Buduje transakcje Modbus (przez ble-client) na podstawie katalogu parametrów
 // i stosuje skalowanie z scaling.js.
 //
-// Adresowanie PDU (sekcja 4.3 spec): katalog ma dwa pola, `register` (adres
-// z manuala) i `pdu_address` (wyliczony jako register-1, wg "rekomendacji"
-// spec). Zweryfikowane empirycznie na tym sprzęcie (poprzedni projekt
-// Cloner, G100Registers.h: "dr.14 -> 0x110E POTWIERDZONE" == grupa*0x100 +
-// kod, czyli DOKŁADNIE `register`, BEZ offsetu -1) — G100 na wire oczekuje
-// `register` wprost. Świadomie używamy `register`, nie `pdu_address`.
+// Adresowanie PDU (sekcja 4.3 spec) — KONWENCJA NIE JEST JEDNOLITA MIĘDZY GRUPAMI
+// (potwierdzone empirycznie na tym sprzęcie, sweep 0x1207-0x120D vs klawiatura
+// falownika, 2026-09-04):
+//   - grupa "dr": PDU = register BEZ offsetu (potwierdzone: dr.14 -> 0x110E,
+//     zrodlo: poprzedni projekt Cloner, G100Registers.h)
+//   - grupa "SYS" (SYS-ACC/SYS-DEC/SYS-FREQ, rejestry Operation group poza PAR):
+//     PDU = register BEZ offsetu (potwierdzone: SYS-ACC dalo poprawne 4.9)
+//   - WSZYSTKIE POZOSTAŁE grupy PAR (bA, Ad, Cn, In, OU, CM, AP, Pr, M2):
+//     PDU = register - 1, czyli pole `pdu_address` (potwierdzone empirycznie
+//     na grupie bA: sweep pokazal ze bA.10/bA.11 z klawiatury odpowiadaja
+//     adresom o 1 nizszym niz `register` w katalogu). Zgadza sie z ostrzezeniem
+//     w PROJECT_STATE.md starego projektu: "wzor NIE jest jednolity - w grupie
+//     DRV adres = 0x1100+Code, w innych grupach adres = base+(Code-1)".
+const NO_OFFSET_GROUPS = new Set(['dr', 'SYS']);
 
 const ModbusClient = (() => {
   let seqCounter = 1;
@@ -16,7 +24,7 @@ const ModbusClient = (() => {
   }
 
   function pduHex(entry) {
-    return String(entry.register); // potwierdzone empirycznie: BEZ offsetu -1, patrz komentarz wyżej
+    return String(NO_OFFSET_GROUPS.has(entry.group) ? entry.register : entry.pdu_address);
   }
 
   // Odczyt pojedynczo po parametrze (prostsze i bezpieczniejsze niż batchowanie
