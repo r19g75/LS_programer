@@ -89,22 +89,17 @@ const UI = (() => {
     if (sysFreqEntry) {
       const box = el('div', { class: 'sysfreq-box' });
       box.innerHTML = `<h4>Trwały zapis częstotliwości (${sysFreqEntry.register})</h4>
-        <p class="hint-text">Sekwencja: potwierdzenie źródła Keypad-1 → zapis częstotliwości → SAVE. Patrz sekcja 4.6 spec.</p>`;
+        <p class="hint-text">Automatyczna sekwencja: źródło → Keypad-1 (0h1D03) → zapis częstotliwości → SAVE. Patrz sekcja 4.6 spec.</p>`;
       const row = el('div', { class: 'sysfreq-row' });
       const freqInput = el('input', { type: 'number', step: '0.01', placeholder: 'Hz', id: 'sysFreqValueInput' });
-      const sourceConfirm = el('label', {}, [
-        el('input', { type: 'checkbox', id: 'sysFreqSourceConfirm' }),
-        document.createTextNode(' Potwierdzam, że źródło częstotliwości (Frq) jest ustawione na Keypad-1'),
-      ]);
       const writeBtn = el('button', {
         class: 'btn btn-primary',
         disabled: !connected,
-        onclick: () => handlers.onSysFreqWrite(parseFloat(freqInput.value), document.getElementById('sysFreqSourceConfirm').checked),
+        onclick: () => handlers.onSysFreqWrite(parseFloat(freqInput.value)),
       }, 'Zapisz częstotliwość + SAVE');
       row.appendChild(freqInput);
       row.appendChild(writeBtn);
       box.appendChild(row);
-      box.appendChild(sourceConfirm);
       const statusEl = el('div', { class: 'hint-text', id: 'sysFreqStatus' }, invState.sysFreqStatus || '');
       box.appendChild(statusEl);
       container.appendChild(box);

@@ -4,7 +4,7 @@
 // Numer wersji widoczny w UI (górny pasek) — bump razem z CACHE_NAME w
 // service-worker.js przy każdym deployu, żeby dało się na oko sprawdzić
 // czy telefon faktycznie pobrał nową wersję.
-const APP_VERSION = 'v8';
+const APP_VERSION = 'v9';
 
 (async function () {
   document.getElementById('appVersion').textContent = APP_VERSION;
@@ -128,7 +128,7 @@ const APP_VERSION = 'v8';
           const num = value === '' ? undefined : parseFloat(value);
           ist.edited[code] = num;
         },
-        onSysFreqWrite: (freqValue, sourceConfirmed) => doSysFreqWrite(inverter, freqValue, sourceConfirmed),
+        onSysFreqWrite: (freqValue) => doSysFreqWrite(inverter, freqValue),
       },
     });
   }
@@ -220,36 +220,38 @@ const APP_VERSION = 'v8';
     });
   }
 
-  async function doSysFreqWrite(inverter, freqValue, sourceConfirmed) {
+  async function doSysFreqWrite(inverter, freqValue) {
     const ist = invState(inverter.id);
     const statusEl = () => document.getElementById('sysFreqStatus');
-    if (!sourceConfirmed) {
-      ist.sysFreqStatus = '⚠ Najpierw potwierdź, że źródło Frq jest ustawione na Keypad-1 (na klawiaturze falownika lub w DriveView).';
-      if (statusEl()) statusEl().textContent = ist.sysFreqStatus;
-      return;
-    }
+    const setStatus = (msg) => {
+      ist.sysFreqStatus = msg;
+      if (statusEl()) statusEl().textContent = msg;
+    };
+
     if (isNaN(freqValue)) {
-      ist.sysFreqStatus = '⚠ Podaj poprawną wartość częstotliwości.';
-      if (statusEl()) statusEl().textContent = ist.sysFreqStatus;
+      setStatus('⚠ Podaj poprawną wartość częstotliwości.');
       return;
     }
     const sysFreqEntry = Catalog.getSysFreqEntry();
-    ist.sysFreqStatus = 'Zapisywanie częstotliwości...';
-    if (statusEl()) statusEl().textContent = ist.sysFreqStatus;
+    const frqSrcEntry = Catalog.get('SYS-FRQSRC');
+
     try {
+      setStatus('Ustawiam źródło częstotliwości na Keypad-1 (0h1D03)...');
+      await ModbusClient.writeEntry(inverter.modbusAddress, frqSrcEntry, 0);
+
+      setStatus('Zapisuję częstotliwość...');
       await ModbusClient.writeEntry(inverter.modbusAddress, sysFreqEntry, freqValue);
-      ist.sysFreqStatus = 'Częstotliwość zapisana, zapisuję SAVE (0h03E0=1)...';
-      if (statusEl()) statusEl().textContent = ist.sysFreqStatus;
+
+      setStatus('Częstotliwość zapisana, wykonuję SAVE (0h03E0: 0→1)...');
       const saveResp = await ModbusClient.saveToMemory(inverter.modbusAddress);
       if (saveResp.ok) {
-        ist.sysFreqStatus = `✓ Zapisano ${freqValue} Hz i wykonano SAVE. Zweryfikuj trwałość po power-cycle (Test 1, sekcja 4.3 spec).`;
+        setStatus(`✓ Źródło ustawione na Keypad-1, zapisano ${freqValue} Hz i wykonano SAVE. Zweryfikuj trwałość po power-cycle (Test 1, sekcja 4.3 spec).`);
       } else {
-        ist.sysFreqStatus = `Częstotliwość zapisana, ale SAVE nie powiodło się: ${saveResp.error}`;
+        setStatus(`Częstotliwość zapisana, ale SAVE nie powiodło się: ${saveResp.error}`);
       }
     } catch (e) {
-      ist.sysFreqStatus = 'Błąd zapisu: ' + e.message;
+      setStatus('Błąd zapisu: ' + e.message);
     }
-    if (statusEl()) statusEl().textContent = ist.sysFreqStatus;
   }
 
   // === EKRAN A: KONFIGURACJA ===

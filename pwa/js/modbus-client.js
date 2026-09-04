@@ -87,9 +87,24 @@ const ModbusClient = (() => {
     return bleClient.sendRequest(req);
   }
 
-  // SAVE do Memory Control area (0h03E0=1) — sekcja 4.4 spec.
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  // SAVE do Memory Control area (0h03E0) — sekcja 4.4 spec.
+  // G100 wymaga sekwencji 0 -> 1, samo ustawienie 1 nie wystarcza (potwierdzone
+  // empirycznie w poprzednim projekcie Cloner G100 v2, cytat z manuala G100
+  // rozdz. 7.2.6 w kodzie: "Setting address 0h03E0 to 0 and then setting it
+  // again to 1 via communication allows the existing parameter settings to be
+  // saved. However, setting address 0h03E0 to 1 and then setting it to 0 does
+  // not carry out the same function.").
   async function saveToMemory(slave) {
-    return writeRawRegister(slave, 6, '0h03E0', [1]);
+    const zeroResp = await writeRawRegister(slave, 6, '0h03E0', [0]);
+    if (!zeroResp.ok) return zeroResp;
+    await sleep(50);
+    const oneResp = await writeRawRegister(slave, 6, '0h03E0', [1]);
+    if (oneResp.ok) await sleep(300); // daj falownikowi czas na fizyczny zapis do EEPROM
+    return oneResp;
   }
 
   return { readEntry, readEntries, writeEntry, writeEntries, writeRawRegister, readRawRegister, saveToMemory };
