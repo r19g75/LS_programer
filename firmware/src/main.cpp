@@ -19,17 +19,19 @@ void onBleMessage(const String &requestJson) {
 }
 
 void setup() {
-    Serial.begin(115200);
+    // UWAGA: RS-485 (MAX485 na nakładce) jest fizycznie podpięty do UART0
+    // (GPIO1 TX0 / GPIO3 RX0) — tych samych pinów co USB/programator/monitor.
+    // Przełącznik na nakładce wybiera, do czego są aktualnie podłączone.
+    // Dlatego Serial NIE jest tu używany do logów debug — te same bajty
+    // poszłyby na szynę RS-485 i zepsuły ramki Modbus. Modbus przejmuje
+    // Serial na wyłączność od razu przy starcie.
     delay(200);
-    Serial.println("G100 Programator gateway starting...");
 
-    modbus.begin(Serial2, PIN_RS485_DE_RE, MODBUS_DEFAULT_BAUD, MODBUS_SERIAL_CONFIG);
+    modbus.begin(Serial, PIN_RS485_DE_RE, MODBUS_DEFAULT_BAUD, MODBUS_SERIAL_CONFIG);
     protocol = new ProtocolHandler(modbus);
 
     ble.setOnMessage(onBleMessage);
     ble.begin();
-
-    Serial.println("BLE advertising jako " BLE_DEVICE_NAME);
 
     // OTA: poza MVP, celowo nie zaimplementowane — patrz include/config.h i sekcja 6.2 spec.
 }

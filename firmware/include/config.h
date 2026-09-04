@@ -1,10 +1,13 @@
 #pragma once
 
-// Piny RS-485 (MAX485) — dostosować do realnego okablowania płytki.
-// DE i RE MAX485 spięte razem na jeden GPIO (typowe dla half-duplex modułów).
-#define PIN_RS485_DE_RE   4
-#define PIN_RS485_RX      16   // ESP32 Serial2 RX2 (do TX modułu MAX485)
-#define PIN_RS485_TX      17   // ESP32 Serial2 TX2 (do RX modułu MAX485)
+// Piny RS-485 (MAX485) — potwierdzone na rzeczywistej nakładce (te same
+// wartości co w poprzednim projekcie "Cloner G100 v2" na tym samym sprzęcie).
+// MAX485 wisi na UART0 (GPIO1 TX0 / GPIO3 RX0) — DZIELONYM fizycznie z
+// USB/programatorem/monitorem przez przełącznik na nakładce (stąd Serial
+// nie może być używany do logów debug w trakcie pracy z RS-485, patrz main.cpp).
+#define PIN_RS485_DE_RE   2
+#define PIN_RS485_RX      3    // ESP32 UART0 RX0 (do TX modułu MAX485)
+#define PIN_RS485_TX      1    // ESP32 UART0 TX0 (do RX modułu MAX485)
 
 // Domyślne parametry portu falownika (sekcja 4.1 spec, do zmiany per instalacja)
 #define MODBUS_DEFAULT_BAUD    9600
