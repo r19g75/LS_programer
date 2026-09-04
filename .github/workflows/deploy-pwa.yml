@@ -1,6 +1,7 @@
 name: Deploy PWA to GitHub Pages
 
 # Wymaga Settings -> Pages -> Source: "GitHub Actions" (nie "Deploy from a branch").
+# 2026-09-04: build_type ustawiony na "workflow" przez API (byl "legacy"/branch mimo UI) - retrigger.
 
 on:
   push:
