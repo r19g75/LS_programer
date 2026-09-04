@@ -80,5 +80,14 @@ const Scaling = (() => {
     return { valid: true, message: null };
   }
 
-  return { getScale, isSigned, rawToDisplay, displayToRaw, extractRange, validate };
+  // Parsuje liczbę wpisaną przez użytkownika, akceptując zarówno kropkę jak i
+  // przecinek jako separator dziesiętny (polska klawiatura domyślnie wpisuje
+  // przecinek — natywny <input type="number"> HTML akceptuje TYLKO kropkę i
+  // po cichu odrzuca/zniekształca przecinek, np. "12,34" -> "1234").
+  function parseLocaleFloat(str) {
+    if (str == null) return NaN;
+    return parseFloat(String(str).trim().replace(',', '.'));
+  }
+
+  return { getScale, isSigned, rawToDisplay, displayToRaw, extractRange, validate, parseLocaleFloat };
 })();

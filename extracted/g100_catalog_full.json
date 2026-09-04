@@ -5299,14 +5299,14 @@
     "code": "SYS-FREQ",
     "group": "SYS",
     "group_name": "System (rejestry specjalne spoza tabel PAR)",
-    "register": "0h1D04",
-    "pdu_address": "0h1D03",
-    "name_approx": "Operation Group Freq (target frequency w obszarze parametrów, do trwałego zapisu)",
+    "register": "0h0380",
+    "pdu_address": "0h0380",
+    "name_approx": "Żywa częstotliwość zadana (Common/Control Area, ten sam rejestr co ręczny wpis z klawiatury)",
     "name_confidence": "manual_from_reference_doc",
-    "setting_range": "jak dr.Frq / 0h0005",
+    "setting_range": "0.00–Maximum frequency (Hz)",
     "initial_value": "",
-    "write_during_op": "",
+    "write_during_op": "O",
     "manual_page": "236",
-    "usage_note": "Wymagany przez procedure trwalego zapisu czestotliwosci: przelacz zrodlo na Keypad-1, zapisz tu, potem SAVE (0h03E0=1). Patrz sekcja 4.6 specyfikacji. NIE pokazywac jako zwykly checkbox w konfiguracji - obsluzyc jako dedykowana logike 'zapisz czestotliwosc' w UI."
+    "usage_note": "ZMIENIONE 2026-09-04 po tescie na sprzecie: pierwotny adres 0h1D04 (procedura z sekcji 4.6 spec: zrodlo Keypad-1 + zapis + SAVE) nie przetrwal power-cycle mimo poprawnego zapisu (potwierdzone odczytem) i sukcesu SAVE - mechanizm z manuala nie zadzialal jak udokumentowano na tym firmware/egzemplarzu. Zmieniono na 0h0380 (Control Area, 'Common area frequency address' z tej samej sekcji manuala) - ten sam rejestr, ktory aktualizuje sie przy recznym wpisaniu czestotliwosci z klawiatury (widoczne na wyswietlaczu, dziala natychmiast). UWAGA: zapis tutaj jest ZYWY - wplywa na biezaca prace falownika od razu, i wedlug manuala NIE przetrwa power-cycle (proba trwalego zapisu przez 0h1D04 nie zadzialala empirycznie, wiec trwalosc pozostaje nierozwiazana)."
   }
 ]

@@ -4,7 +4,7 @@
 // Numer wersji widoczny w UI (górny pasek) — bump razem z CACHE_NAME w
 // service-worker.js przy każdym deployu, żeby dało się na oko sprawdzić
 // czy telefon faktycznie pobrał nową wersję.
-const APP_VERSION = 'v9';
+const APP_VERSION = 'v10';
 
 (async function () {
   document.getElementById('appVersion').textContent = APP_VERSION;
@@ -125,7 +125,7 @@ const APP_VERSION = 'v9';
         onRead: () => doRead(inverter, grouped),
         onProgram: () => doProgram(inverter, grouped),
         onFieldChange: (code, value) => {
-          const num = value === '' ? undefined : parseFloat(value);
+          const num = value === '' ? undefined : Scaling.parseLocaleFloat(value);
           ist.edited[code] = num;
         },
         onSysFreqWrite: (freqValue) => doSysFreqWrite(inverter, freqValue),
@@ -239,16 +239,10 @@ const APP_VERSION = 'v9';
       setStatus('Ustawiam źródło częstotliwości na Keypad-1 (0h1D03)...');
       await ModbusClient.writeEntry(inverter.modbusAddress, frqSrcEntry, 0);
 
-      setStatus('Zapisuję częstotliwość...');
+      setStatus('Zapisuję częstotliwość (żywy rejestr 0h0380)...');
       await ModbusClient.writeEntry(inverter.modbusAddress, sysFreqEntry, freqValue);
 
-      setStatus('Częstotliwość zapisana, wykonuję SAVE (0h03E0: 0→1)...');
-      const saveResp = await ModbusClient.saveToMemory(inverter.modbusAddress);
-      if (saveResp.ok) {
-        setStatus(`✓ Źródło ustawione na Keypad-1, zapisano ${freqValue} Hz i wykonano SAVE. Zweryfikuj trwałość po power-cycle (Test 1, sekcja 4.3 spec).`);
-      } else {
-        setStatus(`Częstotliwość zapisana, ale SAVE nie powiodło się: ${saveResp.error}`);
-      }
+      setStatus(`✓ Źródło ustawione na Keypad-1, zapisano ${freqValue} Hz. Powinno być widoczne na wyświetlaczu od razu.`);
     } catch (e) {
       setStatus('Błąd zapisu: ' + e.message);
     }

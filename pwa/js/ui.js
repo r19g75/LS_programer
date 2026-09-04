@@ -88,15 +88,15 @@ const UI = (() => {
     // SYS-FREQ — dedykowana akcja, nie checkbox (sekcja 4.5/4.6 spec)
     if (sysFreqEntry) {
       const box = el('div', { class: 'sysfreq-box' });
-      box.innerHTML = `<h4>Trwały zapis częstotliwości (${sysFreqEntry.register})</h4>
-        <p class="hint-text">Automatyczna sekwencja: źródło → Keypad-1 (0h1D03) → zapis częstotliwości → SAVE. Patrz sekcja 4.6 spec.</p>`;
+      box.innerHTML = `<h4>Zapis częstotliwości zadanej (${sysFreqEntry.register})</h4>
+        <p class="hint-text">Żywy zapis (jak ręczne wpisanie z klawiatury) — widoczny i skuteczny od razu. Automatycznie ustawia źródło na Keypad-1 najpierw. Trwałość po power-cycle NIEPOTWIERDZONA (patrz usage_note SYS-FREQ w katalogu).</p>`;
       const row = el('div', { class: 'sysfreq-row' });
-      const freqInput = el('input', { type: 'number', step: '0.01', placeholder: 'Hz', id: 'sysFreqValueInput' });
+      const freqInput = el('input', { type: 'text', inputmode: 'decimal', placeholder: 'Hz', id: 'sysFreqValueInput' });
       const writeBtn = el('button', {
         class: 'btn btn-primary',
         disabled: !connected,
-        onclick: () => handlers.onSysFreqWrite(parseFloat(freqInput.value)),
-      }, 'Zapisz częstotliwość + SAVE');
+        onclick: () => handlers.onSysFreqWrite(Scaling.parseLocaleFloat(freqInput.value)),
+      }, 'Zapisz częstotliwość');
       row.appendChild(freqInput);
       row.appendChild(writeBtn);
       box.appendChild(row);
@@ -122,8 +122,8 @@ const UI = (() => {
           el('div', { class: 'param-code' }, `${entry.code} · ${entry.register}`),
         ]));
         const input = el('input', {
-          type: 'number',
-          step: 'any',
+          type: 'text',
+          inputmode: 'decimal',
           value: currentVal,
           class: isDirty ? 'dirty' : '',
           oninput: (e) => handlers.onFieldChange(entry.code, e.target.value),
