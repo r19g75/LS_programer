@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>G100 Programator</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="app-title">G100 Programator</h1>
+    <div class="ble-status" id="bleStatus">
+      <span class="dot dot-off" id="bleStatusDot"></span>
+      <span id="bleStatusText">Niepołączono</span>
+    </div>
+    <button id="connectBtn" class="btn btn-primary">CONNECT</button>
+  </header>
+
+  <nav class="mainnav">
+    <button class="navbtn active" data-view="main">Falowniki</button>
+    <button class="navbtn" data-view="config">Konfiguracja</button>
+    <button class="navbtn" data-view="debug" id="navDebugBtn" hidden>Debug</button>
+  </nav>
+
+  <main id="app">
+    <!-- === WIDOK GŁÓWNY (B) === -->
+    <section id="view-main" class="view active">
+      <div class="main-layout">
+        <div class="inverter-tabs" id="inverterTabs"></div>
+        <div class="inverter-panel" id="inverterPanel">
+          <p class="empty-hint">Brak skonfigurowanych falowników. Przejdź do zakładki „Konfiguracja”, aby dodać falownik.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- === WIDOK KONFIGURACJI (A) === -->
+    <section id="view-config" class="view">
+      <div class="config-section">
+        <h2>Falowniki</h2>
+        <div id="inverterList" class="inverter-list"></div>
+        <form id="addInverterForm" class="add-inverter-form">
+          <input type="text" id="newInverterName" placeholder="Nazwa (np. Pompa 1)" required />
+          <input type="number" id="newInverterAddress" placeholder="Adres Modbus (1-250)" min="1" max="250" required />
+          <button type="submit" class="btn btn-primary">Dodaj falownik</button>
+        </form>
+      </div>
+
+      <div class="config-section">
+        <h2>Wybór parametrów</h2>
+        <label class="field-inline">
+          Falownik do konfiguracji:
+          <select id="configInverterSelect"></select>
+        </label>
+        <div id="paramCatalog" class="param-catalog"></div>
+      </div>
+
+      <div class="config-section">
+        <h2>Ustawienia zaawansowane</h2>
+        <label class="field-inline">
+          <input type="checkbox" id="debugModeToggle" />
+          Tryb Debug (Raw Modbus — testy adresowania, sekcja 4.3 spec)
+        </label>
+        <label class="field-inline">
+          Rozmiar fragmentu BLE (bajty):
+          <input type="number" id="bleChunkSizeInput" min="16" max="500" />
+        </label>
+        <p class="hint-text">
+          Web Bluetooth nie udostępnia rzeczywistego negocjowanego MTU — wartość domyślna jest
+          konserwatywna. Zwiększ ostrożnie, jeśli transmisja na Twoim telefonie/ESP32 działa stabilnie.
+        </p>
+      </div>
+    </section>
+
+    <!-- === PANEL DEBUG / RAW MODBUS === -->
+    <section id="view-debug" class="view">
+      <div class="config-section">
+        <h2>Raw Modbus — testy adresowania (sekcja 4.3 spec)</h2>
+        <p class="hint-text warn-text">
+          Narzędzie do wykonania Testów 1-4 z sekcji 4.3 specyfikacji: rozstrzygnięcia konwencji
+          adresowania PDU. Wysyła surowe żądanie Modbus pod dowolny adres — używaj świadomie.
+        </p>
+        <div id="debugPanelRoot"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modalRoot"></div>
+
+  <script src="js/catalog.js"></script>
+  <script src="js/scaling.js"></script>
+  <script src="js/config-store.js"></script>
+  <script src="js/ble-client.js"></script>
+  <script src="js/modbus-client.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/debug-panel.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
