@@ -1,5 +1,7 @@
 name: Deploy PWA to GitHub Pages
 
+# Wymaga Settings -> Pages -> Source: "GitHub Actions" (nie "Deploy from a branch").
+
 on:
   push:
     branches: [master]
