@@ -2,7 +2,7 @@
 // strona nie potrzebuje sieci do komunikacji z ESP32, tylko do pierwszego
 // pobrania/aktualizacji.
 
-const CACHE_NAME = 'g100-programator-v5';
+const CACHE_NAME = 'g100-programator-v6';
 const ASSETS = [
   './',
   './index.html',

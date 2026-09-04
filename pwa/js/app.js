@@ -4,7 +4,7 @@
 // Numer wersji widoczny w UI (górny pasek) — bump razem z CACHE_NAME w
 // service-worker.js przy każdym deployu, żeby dało się na oko sprawdzić
 // czy telefon faktycznie pobrał nową wersję.
-const APP_VERSION = 'v5';
+const APP_VERSION = 'v6';
 
 (async function () {
   document.getElementById('appVersion').textContent = APP_VERSION;

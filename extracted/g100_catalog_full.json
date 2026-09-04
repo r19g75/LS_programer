@@ -5240,6 +5240,34 @@
     "setting_range_pdf": "0 Rpm | 1 mpm"
   },
   {
+    "code": "SYS-ACC",
+    "group": "SYS",
+    "group_name": "System (rejestry specjalne spoza tabel PAR)",
+    "register": "0h1D00",
+    "pdu_address": "0h1D00",
+    "name_approx": "Operation Group Acc (ogólny czas rozpędzania, widoczny na głównym ekranie falownika)",
+    "name_confidence": "empirical_previous_project",
+    "setting_range": "0.0–600.0 (s)",
+    "initial_value": "5.0",
+    "write_during_op": "O",
+    "manual_page": "",
+    "usage_note": "Potwierdzone empirycznie w poprzednim projekcie (Cloner G100 v2, PROJECT_STATE.md): 0x1D00 = Op.ACC, skala x10 (5.0s = raw 50). Poza tabelami PAR (Operation group), stad brak w automatycznej ekstrakcji manuala. Adresowanie BEZ offsetu -1 (rejestr == pdu_address), zgodnie z konwencja potwierdzona dla tego falownika."
+  },
+  {
+    "code": "SYS-DEC",
+    "group": "SYS",
+    "group_name": "System (rejestry specjalne spoza tabel PAR)",
+    "register": "0h1D01",
+    "pdu_address": "0h1D01",
+    "name_approx": "Operation Group dEC (ogólny czas hamowania, widoczny na głównym ekranie falownika)",
+    "name_confidence": "empirical_previous_project",
+    "setting_range": "0.0–600.0 (s)",
+    "initial_value": "10.0",
+    "write_during_op": "O",
+    "manual_page": "",
+    "usage_note": "Potwierdzone empirycznie w poprzednim projekcie (Cloner G100 v2, PROJECT_STATE.md): 0x1D01 = Op.dEC, skala x10 (analogicznie do Op.ACC 0x1D00). Poza tabelami PAR (Operation group). Adresowanie BEZ offsetu -1 (rejestr == pdu_address)."
+  },
+  {
     "code": "SYS-FREQ",
     "group": "SYS",
     "group_name": "System (rejestry specjalne spoza tabel PAR)",
