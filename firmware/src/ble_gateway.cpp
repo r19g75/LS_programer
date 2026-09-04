@@ -4,21 +4,24 @@
 namespace {
 BleGateway *g_instance = nullptr;
 
+// Sygnatury callbacków wg NimBLE-Arduino 2.x (NimBLEConnInfo zamiast ble_gap_conn_desc*,
+// characterystyki dostaja NimBLEConnInfo& zamiast gołego wskaznika) - biblioteka 1.4.x
+// nie byla kompatybilna z rdzeniem Arduino-ESP32 3.x (IDF5), stad crash przy starcie.
 class ServerCallbacks : public NimBLEServerCallbacks {
-    void onConnect(NimBLEServer *pServer, ble_gap_conn_desc *desc) override {
-        if (g_instance) g_instance->_handleConnect(desc->conn_handle);
+    void onConnect(NimBLEServer *pServer, NimBLEConnInfo &connInfo) override {
+        if (g_instance) g_instance->_handleConnect(connInfo.getConnHandle());
     }
-    void onDisconnect(NimBLEServer *pServer) override {
+    void onDisconnect(NimBLEServer *pServer, NimBLEConnInfo &connInfo, int reason) override {
         if (g_instance) g_instance->_handleDisconnect();
         NimBLEDevice::startAdvertising(); // wznów advertising po rozłączeniu
     }
 };
 
 class RxCallbacks : public NimBLECharacteristicCallbacks {
-    void onWrite(NimBLECharacteristic *pCharacteristic) override {
+    void onWrite(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override {
         if (!g_instance) return;
-        std::string v = pCharacteristic->getValue();
-        g_instance->_handleRxFragment(reinterpret_cast<const uint8_t *>(v.data()), v.size());
+        const NimBLEAttValue &v = pCharacteristic->getValue();
+        g_instance->_handleRxFragment(v.data(), v.length());
     }
 };
 } // namespace
@@ -43,11 +46,8 @@ void BleGateway::begin() {
         BLE_CHAR_TX_UUID,
         NIMBLE_PROPERTY::NOTIFY);
 
-    service->start();
-
     NimBLEAdvertising *advertising = NimBLEDevice::getAdvertising();
     advertising->addServiceUUID(BLE_SERVICE_UUID);
-    advertising->setScanResponse(true);
     NimBLEDevice::startAdvertising();
 }
 
