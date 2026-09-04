@@ -41,6 +41,7 @@ button, input, select {
   z-index: 10;
 }
 .app-title { font-size: 17px; margin: 0; flex: 1; }
+.app-version { font-size: 11px; color: var(--text-dim); font-weight: normal; vertical-align: middle; }
 
 .ble-status { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-dim); }
 .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }

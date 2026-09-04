@@ -1,7 +1,14 @@
 // Główna logika aplikacji: stan, wiązanie zdarzeń, orkiestracja workflow
 // CONNECT -> READ -> EDYCJA -> PROGRAMOWANIE -> WERYFIKACJA (sekcja 5.3 spec).
 
+// Numer wersji widoczny w UI (górny pasek) — bump razem z CACHE_NAME w
+// service-worker.js przy każdym deployu, żeby dało się na oko sprawdzić
+// czy telefon faktycznie pobrał nową wersję.
+const APP_VERSION = 'v5';
+
 (async function () {
+  document.getElementById('appVersion').textContent = APP_VERSION;
+
   const state = {
     activeInverterId: null,
     perInverter: {}, // id -> {lastRead:{}, edited:{}, status:{}, sysFreqStatus:''}
