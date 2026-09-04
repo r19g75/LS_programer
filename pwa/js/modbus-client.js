@@ -27,7 +27,7 @@ const ModbusClient = (() => {
     // (Input Register) — patrz sekcja 4.2 spec.
     const req = { seq: nextSeq(), op: 'read', slave, fc: 3, addr: pduHex(entry), qty: 1 };
     const resp = await bleClient.sendRequest(req);
-    if (!resp.ok) throw new ModbusError(entry, resp.error, resp.exception_code);
+    if (!resp.ok) throw new ModbusError(entry, resp.error, resp.exception_code, resp.raw);
     const raw = resp.values[0];
     return { raw, display: Scaling.rawToDisplay(entry, raw) };
   }
@@ -49,7 +49,7 @@ const ModbusClient = (() => {
     const raw = Scaling.displayToRaw(entry, displayValue);
     const req = { seq: nextSeq(), op: 'write', slave, fc: 6, addr: pduHex(entry), values: [raw] };
     const resp = await bleClient.sendRequest(req);
-    if (!resp.ok) throw new ModbusError(entry, resp.error, resp.exception_code);
+    if (!resp.ok) throw new ModbusError(entry, resp.error, resp.exception_code, resp.raw);
     return raw;
   }
 
@@ -88,10 +88,11 @@ const ModbusClient = (() => {
 })();
 
 class ModbusError extends Error {
-  constructor(entry, error, exceptionCode) {
-    super(`${entry.code}: ${error}${exceptionCode != null ? ' (kod ' + exceptionCode + ')' : ''}`);
+  constructor(entry, error, exceptionCode, raw) {
+    super(`${entry.code}: ${error}${exceptionCode != null ? ' (kod ' + exceptionCode + ')' : ''}${raw ? ' | raw: ' + raw : ''}`);
     this.entry = entry;
     this.error = error;
     this.exceptionCode = exceptionCode;
+    this.raw = raw;
   }
 }
