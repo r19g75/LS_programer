@@ -49,11 +49,11 @@
     "pdu_address": "0h110C",
     "name_approx": "Jog run deceleration time",
     "name_confidence": "high_pdf_verified",
-    "setting_range": "30.0 | 0 0.2 kW Varies by Motor capacity | 1 0.4 kW | 2 0.75 kW | 3 1.1 kW | 4 1.5 kW | 5 2.2 kW | 6 3.0 kW | 7 3.7 kW | 8 4.0 kW | 9 5.5 kW | 10 7.5 kW | 11 11.0kW | 12 15.0kW | 13 18.5kW | 14 22.0kW | 15 30.0kW",
+    "setting_range": "30.0",
     "initial_value": "0.0–600.0 (s)",
     "write_during_op": "O",
     "manual_page": "254",
-    "setting_range_pdf": "0.0–600.0 (s) | 0 0.2 kW | 1 0.4 kW | 2 0.75 kW | 3 1.1 kW | 4 1.5 kW | 5 2.2 kW | 6 3.0 kW | 7 3.7 kW | 8 4.0 kW | 9 5.5 kW | 10 7.5 kW | 11 11.0kW | 12 15.0kW | 13 18.5kW | 14 22.0kW | 15 30.0kW"
+    "setting_range_pdf": "0.0–600.0 (s)"
   },
   {
     "code": "dr-15",
