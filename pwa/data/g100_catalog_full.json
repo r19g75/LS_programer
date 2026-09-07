@@ -2591,12 +2591,12 @@
     "register": "0h1541",
     "pdu_address": "0h1540",
     "name_approx": "P1 terminal function setting",
-    "name_confidence": "high_pdf_verified",
-    "setting_range": "None | 1: Fx | 1 Fx",
-    "initial_value": "0",
+    "name_confidence": "manual_verified_2026_09_07",
+    "setting_range": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select",
+    "initial_value": "1",
     "write_during_op": "X",
     "manual_page": "272",
-    "setting_range_pdf": "0 None | 1 Fx"
+    "setting_range_pdf": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select"
   },
   {
     "code": "In-66",
@@ -2605,12 +2605,12 @@
     "register": "0h1542",
     "pdu_address": "0h1541",
     "name_approx": "P2 terminal function setting",
-    "name_confidence": "high_pdf_verified",
-    "setting_range": "Rx | 2: Rx | 3 RST",
+    "name_confidence": "manual_verified_2026_09_07",
+    "setting_range": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select",
     "initial_value": "2",
     "write_during_op": "X",
     "manual_page": "272",
-    "setting_range_pdf": "2 Rx | 3 RST"
+    "setting_range_pdf": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select"
   },
   {
     "code": "In-67",
@@ -2619,12 +2619,12 @@
     "register": "0h1543",
     "pdu_address": "0h1542",
     "name_approx": "P3 terminal function setting",
-    "name_confidence": "high_pdf_verified",
-    "setting_range": "External Trip | 5: BX | 5 BX",
-    "initial_value": "4",
+    "name_confidence": "manual_verified_2026_09_07",
+    "setting_range": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select",
+    "initial_value": "3",
     "write_during_op": "X",
     "manual_page": "272",
-    "setting_range_pdf": "4 External Trip | 5 BX"
+    "setting_range_pdf": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select"
   },
   {
     "code": "In-68",
@@ -2633,12 +2633,12 @@
     "register": "0h1544",
     "pdu_address": "0h1543",
     "name_approx": "P4 terminal function setting",
-    "name_confidence": "high_pdf_verified",
-    "setting_range": "JOG | 3: RST | 7 Speed-L",
-    "initial_value": "6",
+    "name_confidence": "manual_verified_2026_09_07",
+    "setting_range": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select",
+    "initial_value": "4",
     "write_during_op": "X",
     "manual_page": "272",
-    "setting_range_pdf": "6 JOG | 7 Speed-L"
+    "setting_range_pdf": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select"
   },
   {
     "code": "In-69",
@@ -2647,12 +2647,12 @@
     "register": "0h1545",
     "pdu_address": "0h1544",
     "name_approx": "P5 terminal function setting",
-    "name_confidence": "high_pdf_verified",
-    "setting_range": "Speed-M | 7: Sp-L | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select",
-    "initial_value": "8",
+    "name_confidence": "manual_verified_2026_09_07",
+    "setting_range": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select",
+    "initial_value": "6",
     "write_during_op": "X",
     "manual_page": "272",
-    "setting_range_pdf": "8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source"
+    "setting_range_pdf": "0 None | 1 Fx | 2 Rx | 3 RST | 4 External Trip | 5 BX | 6 JOG | 7 Speed-L | 8 Speed-M | 9 Speed-H | 11 XCEL-L | 12 XCEL-M | 13 RUN Enable | 14 3-Wire | 15 2nd Source | 16 Exchange | 17 Up | 18 Down | 20 U/D Clear | 21 Analog Hold | 22 I-Term Clear | 23 PID Openloop | 24 P Gain2 | 25 XCEL Stop | 26 2nd Motor | 27 U/D Enable | 33 Baseblock | 34 Pre Excite | 38 Timer In | 40 dis Aux Ref | 46 FWD JOG | 47 REV JOG | 49 XCEL-H | 51 Fire Mode | 52 KEB-1 Select"
   },
   {
     "code": "In-84",

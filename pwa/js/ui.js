@@ -128,7 +128,26 @@ const UI = (() => {
           class: isDirty ? 'dirty' : '',
           oninput: (e) => handlers.onFieldChange(entry.code, e.target.value),
         });
-        row.appendChild(input);
+
+        // Podpowiedź nazwy funkcji dla pól typu "numer -> funkcja" (np. P1-P5,
+        // źródła sygnałów, itp.) — aktualizowana na bieżąco przy wpisywaniu,
+        // nie tylko po odczycie. Puste jeśli parametr nie jest enumem/dane
+        // z manuala niekompletne dla tej wartości.
+        const enumOptions = Catalog.parseEnumOptions(entry);
+        const inputWrap = el('div', {});
+        inputWrap.appendChild(input);
+        if (enumOptions.size > 0) {
+          const hint = el('div', { class: 'param-enum-hint' }, '');
+          const updateHint = (raw) => {
+            const label = Catalog.enumLabel(entry, Scaling.parseLocaleFloat(raw));
+            hint.textContent = label ? '→ ' + label : '';
+          };
+          updateHint(String(currentVal));
+          input.addEventListener('input', (e) => updateHint(e.target.value));
+          inputWrap.appendChild(hint);
+        }
+        row.appendChild(inputWrap);
+
         const statusWrap = el('div', {});
         statusWrap.innerHTML = statusBadge(invState.status[entry.code]);
         row.appendChild(statusWrap);

@@ -150,6 +150,7 @@ main#app { padding: 14px; max-width: 1200px; margin: 0 auto; }
 .param-code { color: var(--text-dim); font-size: 12px; }
 .param-row input[type="number"], .param-row input[type="text"] { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); }
 .param-row input.dirty { border-color: var(--warn); }
+.param-enum-hint { font-size: 12px; color: var(--accent); margin-top: 3px; min-height: 14px; }
 .param-status { font-size: 12px; text-align: right; white-space: nowrap; }
 .status-ok { color: var(--ok); }
 .status-err { color: var(--danger); }

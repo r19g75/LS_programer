@@ -66,6 +66,32 @@ const Catalog = (() => {
     return group === 'CM';
   }
 
+  // Parsuje listę opcji "N Etykieta | N Etykieta | ..." (albo "N: Etykieta")
+  // z setting_range_pdf/setting_range — używane m.in. do podpowiedzi nazwy
+  // funkcji przypisanej do wejścia/wyjścia cyfrowego (np. "6 JOG").
+  // Uwaga: dane manuala bywają niekompletne/zaszumione dla niektórych wpisów
+  // (znane ograniczenie ekstrakcji z PDF) — podpowiedź jest pomocą, nie
+  // gwarancją kompletności.
+  function parseEnumOptions(entry) {
+    const src = entry.setting_range_pdf || entry.setting_range || '';
+    const options = new Map();
+    for (const segment of String(src).split('|')) {
+      const m = segment.trim().match(/^(-?\d+)\s*:?\s+(.+)$/);
+      if (m) options.set(parseInt(m[1], 10), m[2].trim());
+    }
+    return options;
+  }
+
+  // Zwraca etykietę dla aktualnej (całkowitej) wartości, albo null jeśli
+  // parametr nie jest rozpoznany jako enum albo wartość nie ma odpowiednika.
+  function enumLabel(entry, value) {
+    if (!Number.isFinite(value)) return null;
+    const rounded = Math.round(value);
+    if (Math.abs(value - rounded) > 1e-9) return null;
+    const options = parseEnumOptions(entry);
+    return options.has(rounded) ? options.get(rounded) : null;
+  }
+
   return {
     load,
     all,
@@ -76,5 +102,7 @@ const Catalog = (() => {
     getSysFreqEntry,
     groupBy,
     isRiskyGroup,
+    parseEnumOptions,
+    enumLabel,
   };
 })();
