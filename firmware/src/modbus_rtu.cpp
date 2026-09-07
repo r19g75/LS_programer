@@ -174,8 +174,16 @@ ModbusResult ModbusRtu::writeSingleRegister(uint8_t slave, uint16_t pduAddress, 
         result.status = ModbusStatus::ERR_BAD_RESPONSE;
         return result;
     }
-    // Echo: falownik odsyła zapisany adres+wartość — traktujemy jako potwierdzenie.
-    result.values[0] = (resp[4] << 8) | resp[5];
+    // Echo: falownik odsyła zapisany adres+wartość — MUSI się zgadzać z tym
+    // co wyslalismy, inaczej to nie jest potwierdzenie naszego zapisu (np.
+    // ramka z innej/spoznionej transakcji na wspoldzielonej szynie).
+    uint16_t echoAddr = (resp[2] << 8) | resp[3];
+    uint16_t echoValue = (resp[4] << 8) | resp[5];
+    if (echoAddr != pduAddress || echoValue != value) {
+        result.status = ModbusStatus::ERR_BAD_RESPONSE;
+        return result;
+    }
+    result.values[0] = echoValue;
     result.valueCount = 1;
     result.status = ModbusStatus::OK;
     return result;
@@ -234,6 +242,13 @@ ModbusResult ModbusRtu::writeMultipleRegisters(uint8_t slave, uint16_t pduAddres
         return result;
     }
     if (resp[1] != 0x10 || n != 8) {
+        result.status = ModbusStatus::ERR_BAD_RESPONSE;
+        return result;
+    }
+    // Echo FC16: start address + quantity musza sie zgadzac z zadaniem.
+    uint16_t echoAddr = (resp[2] << 8) | resp[3];
+    uint16_t echoQty = (resp[4] << 8) | resp[5];
+    if (echoAddr != pduAddress || echoQty != qty) {
         result.status = ModbusStatus::ERR_BAD_RESPONSE;
         return result;
     }

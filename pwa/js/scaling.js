@@ -7,7 +7,21 @@
 // Udokumentowane wyjątki (bA-03 signed, bA-16 min 64%) są jawnymi specjalnymi przypadkami.
 
 const Scaling = (() => {
-  const SIGNED_CODES = new Set(['bA-03']); // Aux Ref Gain, -200%..+200%, interpretować jako int16
+  // Parametry z realnie ujemnym zakresem (potwierdzone skanem katalogu 2026-09-07,
+  // po zgloszeniu w audycie ze bA-03 to nie jedyny signed parametr):
+  const SIGNED_CODES = new Set([
+    'bA-03',  // Aux Ref Gain, -200%..+200%
+    'Ad-68',  // Output contact Off level, -100.00..
+    'In-05',  // V1 input voltage display, -12.00..12.00 V
+    'In-12',  // V1 Minimum input voltage, -10.00..0.00 V
+    'In-13',  // V1 output at Minimum voltage, -100.00..0.00 %
+    'In-14',  // V1 Maximum input voltage, -12.00..0.00 V
+    'In-15',  // V1 output at Maximum voltage, -100.00..0.00 %
+    'OU-02',  // Analog output 1 gain, -1000.0..1000.0 %
+    'OU-03',  // Analog output 1 bias, -100..100 %
+    'AP-19',  // PID reference setting, -100.00..100.00 %
+    'AP-30',  // PID lower limit frequency, -300.00.. Hz
+  ]);
 
   const MIN_OVERRIDES = {
     'bA-16': 64, // Motor efficiency: minimum 64%, nie 0 (sekcja 4.6)
@@ -46,6 +60,12 @@ const Scaling = (() => {
 
   // wartość z UI -> raw uint16 do wysłania Modbus
   function displayToRaw(entry, display) {
+    if (!Number.isFinite(display)) {
+      // Obrona w głębi — NaN/Infinity nie powinno tu nigdy dotrzeć (validate()
+      // odrzuca wcześniej), ale bez tej kontroli NaN & 0xffff cicho dałoby 0
+      // i zapisałoby fałszywe "0" do falownika zamiast błędu.
+      throw new Error(`${entry.code}: próba zapisu nieprawidłowej wartości (${display})`);
+    }
     const scale = getScale(entry);
     let raw = Math.round(display * scale);
     if (isSigned(entry) && raw < 0) {
@@ -67,6 +87,9 @@ const Scaling = (() => {
   // wtedy przepuszczamy wartość (walidacja jest pomocą, nie twardą blokadą
   // poza jawnie udokumentowanymi wyjątkami typu bA-16).
   function validate(entry, display) {
+    if (!Number.isFinite(display)) {
+      return { valid: false, message: 'Nieprawidłowa wartość liczbowa (puste pole albo nierozpoznany tekst)' };
+    }
     if (entry.code in MIN_OVERRIDES && display < MIN_OVERRIDES[entry.code]) {
       return { valid: false, message: `Minimalna wartość dla ${entry.code} to ${MIN_OVERRIDES[entry.code]} (sekcja 4.6 spec)` };
     }

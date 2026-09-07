@@ -4,7 +4,7 @@
 // Numer wersji widoczny w UI (górny pasek) — bump razem z CACHE_NAME w
 // service-worker.js przy każdym deployu, żeby dało się na oko sprawdzić
 // czy telefon faktycznie pobrał nową wersję.
-const APP_VERSION = 'v16';
+const APP_VERSION = 'v17';
 
 (async function () {
   document.getElementById('appVersion').textContent = APP_VERSION;
@@ -206,18 +206,33 @@ const APP_VERSION = 'v16';
     for (const { entry } of writtenOk) ist.status[entry.code] = { pending: true };
     renderMainScreen();
 
+    let allVerifiedOk = true;
     await ModbusClient.readEntries(inverter.modbusAddress, writtenOk.map((w) => w.entry), (entry, result) => {
       const intended = toWrite.find((w) => w.entry.code === entry.code).displayValue;
       if (!result.ok) {
         ist.status[entry.code] = { error: result.error };
+        allVerifiedOk = false;
         return;
       }
       ist.lastRead[entry.code] = { raw: result.raw, display: result.display };
       delete ist.edited[entry.code];
       const match = Math.abs(result.display - intended) < 1e-6;
+      if (!match) allVerifiedOk = false;
       ist.status[entry.code] = { verify: { match, expected: intended, actual: result.display } };
       renderMainScreen();
     });
+
+    // SAVE (0h03E0: 0->1) do EEPROM — TYLKO gdy wszystkie zapisy przeszly
+    // weryfikacje. Przy czesciowym bledzie celowo NIE zapisujemy do pamieci
+    // trwalej falownika stan, ktorego sami nie jestesmy pewni.
+    if (allVerifiedOk) {
+      const saveResp = await ModbusClient.saveToMemory(inverter.modbusAddress);
+      if (!saveResp.ok) {
+        alert('Parametry zapisane i zweryfikowane, ale SAVE do pamięci trwałej nie powiodło się: ' + saveResp.error + '\n\nZmiany mogą nie przetrwać wyłączenia zasilania.');
+      }
+    } else {
+      alert('Nie wszystkie zapisy przeszły weryfikację — SAVE do pamięci trwałej pominięty celowo. Sprawdź statusy poszczególnych parametrów.');
+    }
   }
 
   async function doSysFreqWrite(inverter, freqValue) {
