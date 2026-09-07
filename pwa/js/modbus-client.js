@@ -1,20 +1,25 @@
 // Buduje transakcje Modbus (przez ble-client) na podstawie katalogu parametrów
 // i stosuje skalowanie z scaling.js.
 //
-// Adresowanie PDU (sekcja 4.3 spec) — KONWENCJA NIE JEST JEDNOLITA MIĘDZY GRUPAMI
-// (potwierdzone empirycznie na tym sprzęcie, sweep 0x1207-0x120D vs klawiatura
-// falownika, 2026-09-04):
-//   - grupa "dr": PDU = register BEZ offsetu (potwierdzone: dr.14 -> 0x110E,
-//     zrodlo: poprzedni projekt Cloner, G100Registers.h)
-//   - grupa "SYS" (SYS-ACC/SYS-DEC/SYS-FREQ, rejestry Operation group poza PAR):
-//     PDU = register BEZ offsetu (potwierdzone: SYS-ACC dalo poprawne 4.9)
-//   - WSZYSTKIE POZOSTAŁE grupy PAR (bA, Ad, Cn, In, OU, CM, AP, Pr, M2):
-//     PDU = register - 1, czyli pole `pdu_address` (potwierdzone empirycznie
-//     na grupie bA: sweep pokazal ze bA.10/bA.11 z klawiatury odpowiadaja
-//     adresom o 1 nizszym niz `register` w katalogu). Zgadza sie z ostrzezeniem
-//     w PROJECT_STATE.md starego projektu: "wzor NIE jest jednolity - w grupie
-//     DRV adres = 0x1100+Code, w innych grupach adres = base+(Code-1)".
-const NO_OFFSET_GROUPS = new Set(['dr', 'SYS']);
+// Adresowanie PDU (sekcja 4.3 spec) — potwierdzone empirycznie na tym sprzęcie
+// (2026-09-04, wielokrotne sweepy z porownaniem do klawiatury falownika):
+//   - grupa "SYS" (SYS-ACC/SYS-DEC/SYS-DRV/SYS-FRQSRC/SYS-FREQ, rejestry
+//     Operation group poza tabelami PAR): PDU = register BEZ offsetu.
+//     Potwierdzone na 4 niezaleznych parametrach: SYS-ACC (4.9), SYS-DEC (10.0),
+//     SYS-DRV (0), SYS-FREQ (0h0004, zywy zapis dziala).
+//   - WSZYSTKIE grupy PAR (dr, bA, Ad, Cn, In, OU, CM, AP, Pr, M2):
+//     PDU = register - 1, czyli pole `pdu_address`.
+//     Potwierdzone na bA (bA-10/bA-11) i na dr (dr-11/dr-12/dr-13 - sweep
+//     0x1109-0x110E, idealna zgodnosc z klawiatura po -1: 10.00/20.0/30.0).
+//
+// UWAGA HISTORYCZNA: wczesniej grupa "dr" byla tu wyjatkiem (bez offsetu) na
+// podstawie JEDNEGO punktu danych z poprzedniego projektu (dr.14 -> 0x110E,
+// G100Registers.h). Ten punkt danych okazal sie nietypowy/niereprezentatywny -
+// swiezy sweep na 3 innych kodach dr (11/12/13) jednoznacznie pokazal ze
+// standardowy offset -1 obowiazuje. dr-14 nie zostal ponownie zweryfikowany
+// (i tak byl oznaczony jako RISKY/nietestowany w starym projekcie) - do
+// ewentualnej korekty gdyby ktos rzeczywiscie z niego korzystal.
+const NO_OFFSET_GROUPS = new Set(['SYS']);
 
 const ModbusClient = (() => {
   let seqCounter = 1;
