@@ -121,32 +121,45 @@ const UI = (() => {
           el('div', { class: 'param-name' }, entry.name_approx),
           el('div', { class: 'param-code' }, `${entry.code} · ${entry.register}`),
         ]));
-        const input = el('input', {
-          type: 'text',
-          inputmode: 'decimal',
-          value: currentVal,
-          class: isDirty ? 'dirty' : '',
-          oninput: (e) => handlers.onFieldChange(entry.code, e.target.value),
-        });
-
-        // Podpowiedź nazwy funkcji dla pól typu "numer -> funkcja" (np. P1-P5,
-        // źródła sygnałów, itp.) — aktualizowana na bieżąco przy wpisywaniu,
-        // nie tylko po odczycie. Puste jeśli parametr nie jest enumem/dane
-        // z manuala niekompletne dla tej wartości.
+        // Dla parametrów typu "numer -> funkcja" (P1-P5, źródła sygnałów itp.)
+        // z kompletną listą opcji w katalogu — lista rozwijana z nazwami
+        // zamiast wpisywania liczby na pamięć. Gdzie danych z manuala brakuje
+        // (znane ograniczenie ekstrakcji PDF), zostaje zwykłe pole liczbowe.
         const enumOptions = Catalog.parseEnumOptions(entry);
-        const inputWrap = el('div', {});
-        inputWrap.appendChild(input);
+        let valueField;
+
         if (enumOptions.size > 0) {
-          const hint = el('div', { class: 'param-enum-hint' }, '');
-          const updateHint = (raw) => {
-            const label = Catalog.enumLabel(entry, Scaling.parseLocaleFloat(raw));
-            hint.textContent = label ? '→ ' + label : '';
-          };
-          updateHint(String(currentVal));
-          input.addEventListener('input', (e) => updateHint(e.target.value));
-          inputWrap.appendChild(hint);
+          const currentNum = currentVal === '' ? null : Math.round(Scaling.parseLocaleFloat(String(currentVal)));
+          const select = el('select', {
+            class: isDirty ? 'dirty' : '',
+            onchange: (e) => handlers.onFieldChange(entry.code, e.target.value),
+          });
+          if (currentNum === null) {
+            select.appendChild(el('option', { value: '', selected: 'selected', disabled: true }, '— wybierz —'));
+          }
+          const sorted = Array.from(enumOptions.entries()).sort((a, b) => a[0] - b[0]);
+          let matched = false;
+          for (const [num, label] of sorted) {
+            const isSelected = currentNum !== null && num === currentNum;
+            if (isSelected) matched = true;
+            select.appendChild(el('option', { value: String(num), selected: isSelected ? 'selected' : false }, `${num} — ${label}`));
+          }
+          if (currentNum !== null && !matched) {
+            // Wartość spoza znanej listy (niekompletne dane manuala) — nie gubimy jej.
+            const unknownOpt = el('option', { value: String(currentNum), selected: 'selected' }, `${currentNum} — (nieznana wartość)`);
+            select.insertBefore(unknownOpt, select.firstChild);
+          }
+          valueField = select;
+        } else {
+          valueField = el('input', {
+            type: 'text',
+            inputmode: 'decimal',
+            value: currentVal,
+            class: isDirty ? 'dirty' : '',
+            oninput: (e) => handlers.onFieldChange(entry.code, e.target.value),
+          });
         }
-        row.appendChild(inputWrap);
+        row.appendChild(valueField);
 
         const statusWrap = el('div', {});
         statusWrap.innerHTML = statusBadge(invState.status[entry.code]);
