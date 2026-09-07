@@ -69,14 +69,17 @@ klawiaturze 12 Hz pokazywał w Podglądzie ~3 Hz). Zastąpione blokiem Common Ar
 z klawiaturą; to ten sam rejestr co już wcześniej potwierdzony `SYS-FREQ`). **`MON-DCLINK`
 (0h000B) wiarygodne** (564V, fizycznie spójne z wyprostowanym ~400V AC 3-fazowym).
 
-**DO ZROBIENIA PRZED UŻYCIEM PRODUKCYJNYM:** reszta bloku (`MON-FREQ-ACT`, `MON-CUR`,
-`MON-VOLT`, `MON-POWER`, `MON-STATUS`, `MON-V1`, `MON-V0`) była sweepowana tylko w stanie
-**STOP** (silnik nieuruchomiony) — zerowe odczyty są spójne zarówno z poprawnym adresem
-(brak pracy = brak prądu/napięcia/mocy) jak i (mniej prawdopodobnie) błędnym adresem.
-Test do zrobienia: uruchom falownik na znanej częstotliwości/obciążeniu, porównaj
-`Podgląd` z klawiaturą/DriveView przy pracującym silniku. `MON-I2` (0h0013) w ogóle
-jeszcze nie zamieciony sweepem (poprzedni sweep qty=16 zwrócił tylko 15 wartości) —
-powtórzyć z qty≥17. Status (`MON-STATUS`, 0h000D) to surowy bitfield, niezdekodowany —
-sweep w STOP dał `0x4001`, znaczenie bitów do ustalenia porównaniem STOP/RUN FWD/RUN REV/TRIP.
-Dokładne wartości V1/V0/I2 w natywnych jednostkach (V/V/mA) czytane osobno przez już
-zweryfikowane wpisy `In-05`/`In-35`/`In-50` (offset -1 standardowy, grupa "In").
+**POTWIERDZONE NA SPRZĘCIE W STANIE RUN (2026-09-07):** użytkownik uruchomił falownik
+i potwierdził, że `MON-FREQ`/`MON-FREQ-ACT`/`MON-CUR`/`MON-VOLT`/`MON-DCLINK`/`MON-POWER`
+zgadzają się z wyświetlaczem ("wygląda że działa" — ogólne potwierdzenie całego bloku,
+nie liczba-po-liczbie, więc jeśli kiedyś któraś wartość zacznie wyglądać podejrzanie,
+warto zrobić dokładniejsze porównanie liczba-do-liczby).
+
+**Nadal otwarte:** `MON-STATUS` (0h000D) to surowy bitfield, niezdekodowany — sweep w
+STOP dał `0x4001`, znaczenie poszczególnych bitów do ustalenia porównaniem stanów
+STOP/RUN FWD/RUN REV/TRIP. `MON-V1`/`MON-V0` (%) nie mają bezpośredniego odpowiednika
+na klawiaturze do porównania — orientacyjne. `MON-I2` (0h0013) w ogóle jeszcze nie był
+w zasięgu żadnego sweepu (poprzedni debug-sweep qty=16 zwrócił tylko 15 wartości), choć
+batch-read w `monitor.js` (qty=16 od 0h0004) go obejmuje. Dokładne wartości V1/V0/I2 w
+natywnych jednostkach (V/V/mA) czytane osobno przez już zweryfikowane wpisy
+`In-05`/`In-35`/`In-50` (offset -1 standardowy, grupa "In").

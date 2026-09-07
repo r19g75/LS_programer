@@ -4,14 +4,14 @@
 // istniejącego workflow READ/PROGRAMOWANIE/WERYFIKACJA w app.js/ui.js.
 //
 // Adresy (katalog, grupa "MON", Common Area 0h0004-0h0013) zweryfikowane
-// sweepem 2026-09-07: MON-FREQ (0h0004) POTWIERDZONE (zgodne z 12 Hz na
-// klawiaturze), MON-DCLINK (0h000B) wiarygodne (564V, fizycznie spójne z
-// wyprostowanym napięciem 3-fazowym ~400V), reszta (FREQ-ACT/CUR/VOLT/POWER/
-// STATUS/V1/V0) NIEPOTWIERDZONA W PELNI — sweep wykonany w stanie STOP, więc
-// zerowe odczyty są spójne zarówno z poprawnym adresem (silnik stał) jak i
-// (mniej prawdopodobnie) błędnym. Do potwierdzenia: powtórzyć porównanie
-// z falownikiem w stanie RUN. Baner ostrzegawczy w UI poniżej, do usunięcia
-// dopiero po tej weryfikacji. MON-I2 w ogóle jeszcze nie zamieciony sweepem.
+// sweepem 2026-09-07 (STOP) i potwierdzone przez użytkownika na sprzęcie
+// w stanie RUN tego samego dnia: MON-FREQ/MON-FREQ-ACT/MON-CUR/MON-VOLT/
+// MON-DCLINK/MON-POWER (0h0004/0h0009/0h0008/0h000A/0h000B/0h000C) zgadzają
+// się z wyświetlaczem. MON-STATUS (0h000D) to surowy bitfield — bity
+// NIEZDEKODOWANE. MON-V1/MON-V0 (0h0011/0h0012) i MON-I2 (0h0013, w ogóle
+// jeszcze nie zamieciony sweepem) nie mają bezpośredniego odpowiednika na
+// klawiaturze do porównania — orientacyjne. Dla precyzyjnych V1/V0/I2 w
+// jednostkach natywnych patrz In-05/In-35/In-50 (już zweryfikowane wpisy PDF).
 //
 // Odczyt: JEDEN batch FC03 (0h0004, qty=16) pokrywa cały blok MON-* naraz
 // (10 wartości z jednej transakcji Modbus zamiast 10 osobnych), plus 3
@@ -44,7 +44,7 @@ const Monitor = (() => {
     rootEl.innerHTML = '';
 
     const warn = UI.el('p', { class: 'hint-text warn-text' },
-      '⚠ Częstotliwość zadana (Hz zad.) i DC link są potwierdzone/wiarygodne. Pozostałe wartości (Hz rzecz., prąd, napięcie, moc, status, V1/V0/I2) były testowane tylko w stanie STOP (falownik nieuruchomiony) — porównaj z klawiaturą/DriveView przy pracującym falowniku zanim zaczniesz na nich polegać operacyjnie. Szczegóły w katalogu, wpisy MON-*.');
+      '⚠ Hz zad./rzecz., prąd, napięcie, DC link i moc potwierdzone na sprzęcie (RUN, 2026-09-07). Kolumna Status to surowy bitfield (bity NIEZDEKODOWANE), a V1/V0/I2 (%) nie mają bezpośredniego odpowiednika na klawiaturze do porównania — traktuj je jako orientacyjne. Szczegóły w katalogu, wpisy MON-*.');
     rootEl.appendChild(warn);
 
     const bar = UI.el('div', { class: 'workflow-bar' });

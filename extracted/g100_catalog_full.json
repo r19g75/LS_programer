@@ -5316,12 +5316,12 @@
     "register": "0h0009",
     "pdu_address": "0h0009",
     "name_approx": "Częstotliwość rzeczywista (actual output frequency)",
-    "name_confidence": "hypothesis_plausible_unconfirmed",
+    "name_confidence": "empirical_on_hardware",
     "setting_range": "0.00",
     "initial_value": "",
     "write_during_op": "",
     "manual_page": "",
-    "usage_note": "NIEPOTWIERDZONE W PELNI (2026-09-07). Sweep 0h0004-0h0012 dal na tej pozycji 0 — spojne z tym ze falownik mial wtedy ustawiona (nie skasowana) czestotliwosc zadana 12.05 Hz (MON-FREQ) ale byl w stanie STOP (silnik nie kreci sie), wiec rzeczywista czestotliwosc wyjsciowa=0 jest oczekiwana, nie dowod zlego adresu. DO ZROBIENIA: powtorzyc sweep z falownikiem w stanie RUN i porownac z rzeczywista czestotliwoscia na wyswietlaczu/DriveView."
+    "usage_note": "POTWIERDZONE NA SPRZECIE W STANIE RUN (2026-09-07): uzytkownik uruchomil falownik i potwierdzil ze Podglad zgadza sie z wyswietlaczem ('wyglada ze dziala'), ogolne potwierdzenie calego bloku, nie liczba-po-liczbie. Wczesniejszy sweep w STOP dal 0, spojnie z brakiem pracy silnika."
   },
   {
     "code": "MON-CUR",
@@ -5330,12 +5330,12 @@
     "register": "0h0008",
     "pdu_address": "0h0008",
     "name_approx": "Prąd wyjściowy silnika (output current)",
-    "name_confidence": "hypothesis_plausible_unconfirmed",
+    "name_confidence": "empirical_on_hardware",
     "setting_range": "0.0",
     "initial_value": "",
     "write_during_op": "",
     "manual_page": "",
-    "usage_note": "NIEPOTWIERDZONE W PELNI (2026-09-07). Sweep dal 0 na tej pozycji - spojne ze stanem STOP (brak pradu bez pracy silnika), nie dowod zlego adresu. Poprzedni adres 0h0311 byl bledny (zrodlo: polamana tabela PDF). DO ZROBIENIA: powtorzyc sweep z falownikiem w stanie RUN pod obciazeniem, porownac z klawiatura."
+    "usage_note": "POTWIERDZONE NA SPRZECIE W STANIE RUN (2026-09-07): uzytkownik uruchomil falownik i potwierdzil ze Podglad zgadza sie z wyswietlaczem ('wyglada ze dziala'), ogolne potwierdzenie calego bloku, nie liczba-po-liczbie. Poprzedni adres 0h0311 byl bledny (zrodlo: polamana tabela PDF)."
   },
   {
     "code": "MON-VOLT",
@@ -5344,12 +5344,12 @@
     "register": "0h000A",
     "pdu_address": "0h000A",
     "name_approx": "Napięcie wyjściowe (output voltage)",
-    "name_confidence": "hypothesis_plausible_unconfirmed",
+    "name_confidence": "empirical_on_hardware",
     "setting_range": "0",
     "initial_value": "",
     "write_during_op": "",
     "manual_page": "",
-    "usage_note": "NIEPOTWIERDZONE W PELNI (2026-09-07). Sweep dal 0 na tej pozycji - spojne ze stanem STOP (brak napiecia wyjsciowego bez pracy). Skala zmieniona na x1 (1V), NIE x10 jak poprzednio zalozone - poprzedni adres 0h0316 i skala x10 byly bledne (zrodlo: polamana tabela PDF). DO ZROBIENIA: powtorzyc sweep z falownikiem w stanie RUN, porownac z klawiatura."
+    "usage_note": "POTWIERDZONE NA SPRZECIE W STANIE RUN (2026-09-07): uzytkownik uruchomil falownik i potwierdzil ze Podglad zgadza sie z wyswietlaczem ('wyglada ze dziala'), ogolne potwierdzenie calego bloku, nie liczba-po-liczbie. Skala x1 (1V), NIE x10 jak poprzednio zalozone - poprzedni adres 0h0316 i skala x10 byly bledne (zrodlo: polamana tabela PDF)."
   },
   {
     "code": "MON-DCLINK",
@@ -5358,12 +5358,12 @@
     "register": "0h000B",
     "pdu_address": "0h000B",
     "name_approx": "Napięcie obwodu DC (DC link)",
-    "name_confidence": "empirical_plausible",
+    "name_confidence": "empirical_on_hardware",
     "setting_range": "0",
     "initial_value": "",
     "write_during_op": "",
     "manual_page": "",
-    "usage_note": "WIARYGODNE, NIE JAWNIE POTWIERDZONE (2026-09-07): sweep dal 564 (x1 = 564V) - fizycznie spojne z wyprostowanym napieciem 3-fazowym ~400V AC (400 x 1.41 ~= 564V), silny niezalezny check wiarygodnosci nawet bez odczytu z klawiatury. Do ostatecznego potwierdzenia jesli falownik ma ekran DC link."
+    "usage_note": "POTWIERDZONE NA SPRZECIE W STANIE RUN (2026-09-07): sweep w STOP dal 564 (x1 = 564V, fizycznie spojne z wyprostowanym ~400V AC), a uzytkownik po uruchomieniu falownika (RUN) potwierdzil ze caly blok Podgladu zgadza sie z wyswietlaczem ('wyglada ze dziala')."
   },
   {
     "code": "MON-POWER",
@@ -5372,12 +5372,12 @@
     "register": "0h000C",
     "pdu_address": "0h000C",
     "name_approx": "Moc wyjściowa (output power)",
-    "name_confidence": "hypothesis_plausible_unconfirmed",
+    "name_confidence": "empirical_on_hardware",
     "setting_range": "0.0",
     "initial_value": "",
     "write_during_op": "",
     "manual_page": "",
-    "usage_note": "NIEPOTWIERDZONE W PELNI (2026-09-07). Sweep dal 0 - spojne ze stanem STOP (brak mocy bez pracy). Skala 0.1 kW (zalozenie). DO ZROBIENIA: powtorzyc sweep z falownikiem w stanie RUN pod obciazeniem."
+    "usage_note": "POTWIERDZONE NA SPRZECIE W STANIE RUN (2026-09-07): uzytkownik uruchomil falownik i potwierdzil ze Podglad zgadza sie z wyswietlaczem ('wyglada ze dziala'), ogolne potwierdzenie calego bloku, nie liczba-po-liczbie."
   },
   {
     "code": "MON-STATUS",
