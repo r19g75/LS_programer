@@ -25,6 +25,7 @@ class BleClient {
 
     this._rxState = null; // reassemblacja odpowiedzi z ESP32
     this._pending = new Map(); // seq (protokołu JSON) -> {resolve, reject, timer}
+    this._requestChain = Promise.resolve(); // kolejka sendRequest — patrz komentarz przy sendRequest()
     this.onDisconnected = null;
   }
 
@@ -133,7 +134,24 @@ class BleClient {
   }
 
   // Wysyła request JSON, zwraca Promise rozwiązywany odpowiedzią o pasującym seq.
+  //
+  // Kolejkowane celowo (this._requestChain) — BLE to jeden, sekwencyjny kanał.
+  // Bez tego dwa niezależne wywołania w tym samym czasie (np. zakładka Podgląd
+  // pollująca w tle podczas gdy użytkownik robi READ/PROGRAMOWANIE w zakładce
+  // Falowniki) mogłyby przeplatać fragmenty dwóch różnych wiadomości na tej
+  // samej charakterystyce RX, psując rekonstrukcję ramek po stronie firmware
+  // (ble_gateway.cpp zaczyna nową wiadomość przy offset=0, porzucając
+  // niedokończoną poprzednią) — objaw: sporadyczne, mylące timeouty w obu
+  // miejscach naraz, bez realnego ryzyka zapisu złej wartości (struktura
+  // ramki Modbus i tak by to odrzuciła), ale niepotrzebnie zawodne.
   sendRequest(requestObj, timeoutMs = 3000) {
+    const run = () => this._sendRequestNow(requestObj, timeoutMs);
+    const queued = this._requestChain.then(run, run);
+    this._requestChain = queued.catch(() => {}); // błąd jednego requestu nie blokuje kolejki
+    return queued;
+  }
+
+  _sendRequestNow(requestObj, timeoutMs) {
     if (!this.connected) return Promise.reject(new Error('BLE niepołączone'));
 
     return new Promise((resolve, reject) => {

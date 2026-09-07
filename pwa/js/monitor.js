@@ -93,32 +93,52 @@ const Monitor = (() => {
   }
 
   async function pollLoop() {
-    while (!stopRequested) {
-      const cfg = ConfigStore.getState();
-      for (const inv of cfg.inverters) {
-        if (stopRequested) break;
-        if (!bleClient.connected) {
-          stop();
-          break;
-        }
-        const result = { lastUpdate: Date.now() };
-        try {
-          for (const code of POLL_CODES) {
-            const entry = Catalog.get(code);
-            if (!entry) continue;
-            const r = await ModbusClient.readEntry(inv.modbusAddress, entry);
-            if (code === 'MON-FREQ') result.freq = r.display;
-            if (code === 'MON-CUR') result.cur = r.display;
-            if (code === 'MON-VOLT') result.volt = r.display;
+    // Zabezpieczenie: cokolwiek nieoczekiwanego rzuci wyjątek w tej pętli
+    // (np. błąd w render()), `running` MUSI wrócić do false w finally,
+    // inaczej przycisk zostałby trwale zablokowany na "Zatrzymaj podgląd"
+    // mimo że pętla faktycznie by umarła (martwy stan bez odzyskania).
+    try {
+      while (!stopRequested) {
+        const cfg = ConfigStore.getState();
+        for (const inv of cfg.inverters) {
+          if (stopRequested) break;
+          if (!bleClient.connected) {
+            stop();
+            break;
           }
-        } catch (e) {
-          result.error = e.message || String(e);
+          const result = { lastUpdate: Date.now() };
+          try {
+            for (const code of POLL_CODES) {
+              const entry = Catalog.get(code);
+              if (!entry) continue;
+              const r = await ModbusClient.readEntry(inv.modbusAddress, entry);
+              if (code === 'MON-FREQ') result.freq = r.display;
+              if (code === 'MON-CUR') result.cur = r.display;
+              if (code === 'MON-VOLT') result.volt = r.display;
+            }
+          } catch (e) {
+            result.error = e.message || String(e);
+          }
+          values[inv.id] = result;
+          try {
+            render();
+          } catch (renderErr) {
+            console.error('Monitor.render() błąd:', renderErr);
+          }
         }
-        values[inv.id] = result;
-        render();
+        if (stopRequested) break;
+        await sleep(POLL_PAUSE_MS);
       }
-      if (stopRequested) break;
-      await sleep(POLL_PAUSE_MS);
+    } catch (fatalErr) {
+      console.error('Monitor.pollLoop() nieoczekiwany błąd, zatrzymuję podgląd:', fatalErr);
+    } finally {
+      running = false;
+      stopRequested = false;
+      try {
+        render();
+      } catch (renderErr) {
+        console.error('Monitor.render() błąd:', renderErr);
+      }
     }
   }
 
