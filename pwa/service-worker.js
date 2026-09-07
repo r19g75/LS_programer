@@ -2,7 +2,7 @@
 // strona nie potrzebuje sieci do komunikacji z ESP32, tylko do pierwszego
 // pobrania/aktualizacji.
 
-const CACHE_NAME = 'g100-programator-v15';
+const CACHE_NAME = 'g100-programator-v16';
 const ASSETS = [
   './',
   './index.html',
@@ -18,6 +18,8 @@ const ASSETS = [
   './js/app.js',
   './data/g100_catalog_full.json',
   './icons/icon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {
