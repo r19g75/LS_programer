@@ -51,26 +51,32 @@ Nieblokujące usprawnienia UX, zebrane po pierwszych testach na sprzęcie (2026-
   falowniku, z bezpośrednim porównaniem do klawiatury — nie ufać samej
   dokumentacji po tym jak V1.1 już raz okazała się wewnętrznie sprzeczna.
 
-## Zakładka podglądu/monitoringu wielu falowników — ZAIMPLEMENTOWANE (2026-09-07)
+## Zakładka podglądu/monitoringu wielu falowników — ZAIMPLEMENTOWANE (2026-09-07, adresy poprawione 2026-09-07)
 
 Nowa zakładka **"Podgląd"** (`pwa/js/monitor.js`), czysto dodatkowa — nie modyfikuje
 READ/PROGRAMOWANIE/WERYFIKACJA. Tabela wszystkich skonfigurowanych falowników naraz:
-Hz, m/min (przeliczone przez współczynnik **konfigurowalny per-falownik**, pole w
-Konfiguracji obok adresu Modbus), Prąd, Napięcie. Start/Stop podglądu osobnym
+Hz zadane/rzeczywiste, m/min (przeliczone przez współczynnik **konfigurowalny per-falownik**),
+Prąd, Napięcie, DC link, Moc, status (raw), V1/V0/I2. Start/Stop podglądu osobnym
 przyciskiem, polling sekwencyjny co ~1s przerwy między pełnymi cyklami (BLE jest
 jednym kanałem, nie da się równolegle). Zatrzymuje się automatycznie przy rozłączeniu BLE.
+Odczyt zoptymalizowany: jeden batch FC03 (`0h0004` qty=16) pokrywa cały blok MON-* zamiast
+osobnego requestu na parametr.
 
-**DO ZROBIENIA PRZED UŻYCIEM PRODUKCYJNYM — adresy pomiarowe NIEPOTWIERDZONE:**
-`MON-FREQ` (0h0312), `MON-CUR` (0h0311), `MON-VOLT` (0h0316) w katalogu (grupa "MON")
-odczytane z sekcji 7.6.1 manuala ("Monitoring Area Parameter"), ale ta tabela w PDF
-jest silnie połamana przez zawijanie kolumn (adresy/nazwy/bity statusu przemieszane) —
-**nie zweryfikowane sweepem na sprzęcie** jak reszta adresów w tym projekcie. Skala
-(x100 dla Hz, x10 dla prądu/napięcia) to też założenie, nie potwierdzone. W UI jest
-widoczny baner ostrzegawczy dopóki to się nie zmieni.
+**Pierwotne adresy (`0h0312/0h0311/0h0316`, z połamanej tabeli PDF sekcji 7.6.1) były
+BŁĘDNE** — potwierdzone sweepem na sprzęcie 2026-09-07 (falownik z ustawionymi na
+klawiaturze 12 Hz pokazywał w Podglądzie ~3 Hz). Zastąpione blokiem Common Area
+`0h0004-0h0013`. **`MON-FREQ` (0h0004) POTWIERDZONE** (sweep dał 1205 = 12.05 Hz, zgodne
+z klawiaturą; to ten sam rejestr co już wcześniej potwierdzony `SYS-FREQ`). **`MON-DCLINK`
+(0h000B) wiarygodne** (564V, fizycznie spójne z wyprostowanym ~400V AC 3-fazowym).
 
+**DO ZROBIENIA PRZED UŻYCIEM PRODUKCYJNYM:** reszta bloku (`MON-FREQ-ACT`, `MON-CUR`,
+`MON-VOLT`, `MON-POWER`, `MON-STATUS`, `MON-V1`, `MON-V0`) była sweepowana tylko w stanie
+**STOP** (silnik nieuruchomiony) — zerowe odczyty są spójne zarówno z poprawnym adresem
+(brak pracy = brak prądu/napięcia/mocy) jak i (mniej prawdopodobnie) błędnym adresem.
 Test do zrobienia: uruchom falownik na znanej częstotliwości/obciążeniu, porównaj
-`Podgląd` z klawiaturą/DriveView. Jeśli adresy złe — sweep okolicy `0h0300-0h031D`
-(jak przy `bA-10/11` i `SYS-FREQ`), potem poprawić 3 wpisy w katalogu.
-
-Prąd wejścia analogowego (I2) — pominięty na razie, nie dodany do tabeli (nie było
-w pierwszej wersji adresów Monitoring Area, do rozważenia osobno jeśli potrzebny).
+`Podgląd` z klawiaturą/DriveView przy pracującym silniku. `MON-I2` (0h0013) w ogóle
+jeszcze nie zamieciony sweepem (poprzedni sweep qty=16 zwrócił tylko 15 wartości) —
+powtórzyć z qty≥17. Status (`MON-STATUS`, 0h000D) to surowy bitfield, niezdekodowany —
+sweep w STOP dał `0x4001`, znaczenie bitów do ustalenia porównaniem STOP/RUN FWD/RUN REV/TRIP.
+Dokładne wartości V1/V0/I2 w natywnych jednostkach (V/V/mA) czytane osobno przez już
+zweryfikowane wpisy `In-05`/`In-35`/`In-50` (offset -1 standardowy, grupa "In").

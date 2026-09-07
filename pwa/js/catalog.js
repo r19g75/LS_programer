@@ -31,9 +31,16 @@ const Catalog = (() => {
     return entry.code === 'SYS-FREQ';
   }
 
-  // Lista do ekranu konfiguracji: bez keypad-only i bez wpisów specjalnych.
+  // Grupa MON = rejestry tylko-do-odczytu używane wyłącznie przez zakładkę
+  // Podgląd (monitor.js) — nie parametry do programowania, nie pokazywać
+  // jako checkboxy na ekranie konfiguracji.
+  function isMonitorOnly(entry) {
+    return entry.group === 'MON';
+  }
+
+  // Lista do ekranu konfiguracji: bez keypad-only, wpisów specjalnych i monitoringu.
   function selectableEntries() {
-    return allEntries.filter((e) => !isKeypadOnly(e) && !isSpecial(e));
+    return allEntries.filter((e) => !isKeypadOnly(e) && !isSpecial(e) && !isMonitorOnly(e));
   }
 
   function getSysFreqEntry() {
@@ -98,6 +105,7 @@ const Catalog = (() => {
     get,
     isKeypadOnly,
     isSpecial,
+    isMonitorOnly,
     selectableEntries,
     getSysFreqEntry,
     groupBy,
