@@ -89,7 +89,7 @@ const UI = (() => {
     if (sysFreqEntry) {
       const box = el('div', { class: 'sysfreq-box' });
       box.innerHTML = `<h4>Zapis częstotliwości zadanej (${sysFreqEntry.register})</h4>
-        <p class="hint-text">Żywy zapis (jak ręczne wpisanie z klawiatury) — widoczny i skuteczny od razu. Automatycznie ustawia źródło na Keypad-1 najpierw. Trwałość po power-cycle NIEPOTWIERDZONA (patrz usage_note SYS-FREQ w katalogu).</p>`;
+        <p class="hint-text">Żywy zapis, widoczny i skuteczny od razu (potwierdzone na sprzęcie). Automatycznie przełącza źródło Frq na <b>Int 485</b> — falownik przechodzi na sterowanie częstotliwością przez RS-485 (nie klawiaturę), dopóki nie przełączysz z powrotem. Trwałość po power-cycle NIEPOTWIERDZONA.</p>`;
       const row = el('div', { class: 'sysfreq-row' });
       const freqInput = el('input', { type: 'text', inputmode: 'decimal', placeholder: 'Hz', id: 'sysFreqValueInput' });
       const writeBtn = el('button', {

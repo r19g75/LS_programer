@@ -4,7 +4,7 @@
 // Numer wersji widoczny w UI (górny pasek) — bump razem z CACHE_NAME w
 // service-worker.js przy każdym deployu, żeby dało się na oko sprawdzić
 // czy telefon faktycznie pobrał nową wersję.
-const APP_VERSION = 'v11';
+const APP_VERSION = 'v12';
 
 (async function () {
   document.getElementById('appVersion').textContent = APP_VERSION;
@@ -236,13 +236,13 @@ const APP_VERSION = 'v11';
     const frqSrcEntry = Catalog.get('SYS-FRQSRC');
 
     try {
-      setStatus('Ustawiam źródło częstotliwości na Keypad-1 (0h1D03)...');
-      await ModbusClient.writeEntry(inverter.modbusAddress, frqSrcEntry, 0);
+      setStatus('Ustawiam źródło częstotliwości na Int 485 (0h1D03=6)...');
+      await ModbusClient.writeEntry(inverter.modbusAddress, frqSrcEntry, 6);
 
-      setStatus('Zapisuję częstotliwość (żywy rejestr 0h0380)...');
+      setStatus('Zapisuję częstotliwość (0h0004)...');
       await ModbusClient.writeEntry(inverter.modbusAddress, sysFreqEntry, freqValue);
 
-      setStatus(`✓ Źródło ustawione na Keypad-1, zapisano ${freqValue} Hz. Powinno być widoczne na wyświetlaczu od razu.`);
+      setStatus(`✓ Źródło ustawione na Int 485, zapisano ${freqValue} Hz. Falownik jest teraz sterowany częstotliwościowo przez RS-485 — przełącz źródło z powrotem na Keypad-1 (SYS-FRQSRC=0), jeśli chcesz wrócić do sterowania z klawiatury.`);
     } catch (e) {
       setStatus('Błąd zapisu: ' + e.message);
     }
