@@ -5259,13 +5259,13 @@
     "group_name": "System (rejestry specjalne spoza tabel PAR)",
     "register": "0h1D03",
     "pdu_address": "0h1D03",
-    "name_approx": "Operation Group Frq (źródło częstotliwości zadanej: 0=Keypad-1, 2=V1, 5=I2)",
+    "name_approx": "Operation Group Frq (źródło częstotliwości zadanej: 0=Keypad-1, 2=V1, 5=I2, 6=Int 485/RS-485)",
     "name_confidence": "empirical_previous_project",
     "setting_range": "0: Keypad-1 | 1 Keypad-2 | 2 V1 | 4 V0 | 5 I2 | 6 Int 485",
     "initial_value": "",
     "write_during_op": "",
     "manual_page": "",
-    "usage_note": "Potwierdzone empirycznie w poprzednim projekcie (Cloner G100 v2, PROJECT_STATE.md): 0x1D03 = Op.Frq. Poza tabelami PAR (Operation group). Adresowanie BEZ offsetu -1. To jest rejestr wymagany przez procedurę trwałego zapisu częstotliwości (przełączenie na Keypad-1 przed zapisem SYS-FREQ) — patrz sekcja 4.6 spec i usage_note w SYS-FREQ."
+    "usage_note": "Potwierdzone empirycznie w poprzednim projekcie (Cloner G100 v2, PROJECT_STATE.md): 0x1D03 = Op.Frq. Poza tabelami PAR (Operation group). Adresowanie BEZ offsetu -1.\n\nZAKTUALIZOWANE 2026-09-04: to jest rejestr wymagany przez ZYWY zapis czestotliwosci przez RS-485 (SYS-FREQ, 0h0004) - trzeba go ustawic na 6 (Int 485), NIE 0 (Keypad-1), zeby falownik w ogole reagowal na czestotliwosc zapisywana przez Modbus (potwierdzone empirycznie: przy Frq=0 zapis do 0h0004 jest ignorowany mimo poprawnego ACK). UI (przycisk 'Zapisz czestotliwosc') robi to automatycznie. Po takim zapisie falownik jest sterowany czestotliwosciowo przez RS-485 az do recznego przelaczenia z powrotem (np. na 0=Keypad-1)."
   },
   {
     "code": "SYS-ACC",
