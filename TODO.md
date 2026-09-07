@@ -50,3 +50,35 @@ Nieblokujące usprawnienia UX, zebrane po pierwszych testach na sprzęcie (2026-
   wymagany nowy sweep na sprzęcie w okolicy `0x1CFF-0x1D04` przy zatrzymanym
   falowniku, z bezpośrednim porównaniem do klawiatury — nie ufać samej
   dokumentacji po tym jak V1.1 już raz okazała się wewnętrznie sprzeczna.
+
+## Nowa funkcja: zakładka podglądu/monitoringu wielu falowników (2026-09-07)
+
+**WAŻNE: ma być czysto dodatkowa** — nowa zakładka/moduł obok istniejących, bez
+modyfikowania działającego dziś kodu READ/PROGRAMOWANIE/WERYFIKACJA, adresowania,
+katalogu itp. Użytkownik wprost zastrzegł żeby nie ruszać tego co już działa.
+
+Pomysł użytkownika po pierwszych testach na sprzęcie — osobna zakładka, optymalizowana
+pod telefon w **poziomie**, pokazująca **jednocześnie kilka falowników** (np. 5) w formie
+tabeli/kafelków zamiast pojedynczej zakładki na raz jak dziś w "Falowniki". Dla każdego:
+
+- Częstotliwość (Hz) — odczyt live
+- Prędkość liniowa (m/min) — przeliczona z Hz przez współczynnik (**do ustalenia z
+  użytkownikiem**: stały globalnie, czy per-falownik konfigurowalny — różne mechanizmy
+  mogą mieć różne przełożenia/średnice rolek)
+- Prąd, napięcie
+- Prąd wejścia analogowego (I2) — jeśli dotyczy danej instalacji
+
+Wymagania funkcjonalne:
+- **Włącz/wyłącz** tryb podglądu osobnym przełącznikiem — używany PO zaprogramowaniu,
+  jako monitor pracy procesu, nie podczas konfiguracji
+- Cykliczne odpytywanie (polling) wybranych rejestrów dla wszystkich skonfigurowanych
+  falowników w pętli — częstotliwość odświeżania do ustalenia (Modbus przez BLE ma
+  ograniczoną przepustowość, przy 5 falownikach × kilka rejestrów każdy trzeba uważać
+  na czas pełnego cyklu)
+- Układ dostosowany do landscape na telefonie/tablecie (czytelna tabela/siatka, nie
+  pojedyncza kolumna jak w obecnym widoku pionowym)
+
+Do ustalenia przed implementacją: źródło rejestrów "prąd/napięcie/prąd analogowy" (czy
+z Monitoring area 0h0300+, czy z konkretnych PAR-owych parametrów już w katalogu),
+dokładna lista falowników do podglądu (wszystkie skonfigurowane, czy wybór), oraz
+wspomniany współczynnik Hz→m/min.
