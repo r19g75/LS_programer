@@ -19,7 +19,11 @@
 // standardowy offset -1 obowiazuje. dr-14 nie zostal ponownie zweryfikowany
 // (i tak byl oznaczony jako RISKY/nietestowany w starym projekcie) - do
 // ewentualnej korekty gdyby ktos rzeczywiscie z niego korzystal.
-const NO_OFFSET_GROUPS = new Set(['SYS']);
+//   - grupa "MON" (Monitoring Area 0h0300+, tylko do odczytu, poza PAR):
+//     PDU = register BEZ offsetu — NIEPOTWIERDZONE empirycznie (2026-09-07),
+//     zalozenie po analogii z SYS/Common/Control area, patrz usage_note
+//     w katalogu przy MON-FREQ/MON-CUR/MON-VOLT.
+const NO_OFFSET_GROUPS = new Set(['SYS', 'MON']);
 
 const ModbusClient = (() => {
   let seqCounter = 1;

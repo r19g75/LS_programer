@@ -51,35 +51,26 @@ Nieblokujące usprawnienia UX, zebrane po pierwszych testach na sprzęcie (2026-
   falowniku, z bezpośrednim porównaniem do klawiatury — nie ufać samej
   dokumentacji po tym jak V1.1 już raz okazała się wewnętrznie sprzeczna.
 
-## Nowa funkcja: zakładka podglądu/monitoringu wielu falowników (2026-09-07)
+## Zakładka podglądu/monitoringu wielu falowników — ZAIMPLEMENTOWANE (2026-09-07)
 
-**WAŻNE: ma być czysto dodatkowa** — nowa zakładka/moduł obok istniejących, bez
-modyfikowania działającego dziś kodu READ/PROGRAMOWANIE/WERYFIKACJA, adresowania,
-katalogu itp. Użytkownik wprost zastrzegł żeby nie ruszać tego co już działa.
+Nowa zakładka **"Podgląd"** (`pwa/js/monitor.js`), czysto dodatkowa — nie modyfikuje
+READ/PROGRAMOWANIE/WERYFIKACJA. Tabela wszystkich skonfigurowanych falowników naraz:
+Hz, m/min (przeliczone przez współczynnik **konfigurowalny per-falownik**, pole w
+Konfiguracji obok adresu Modbus), Prąd, Napięcie. Start/Stop podglądu osobnym
+przyciskiem, polling sekwencyjny co ~1s przerwy między pełnymi cyklami (BLE jest
+jednym kanałem, nie da się równolegle). Zatrzymuje się automatycznie przy rozłączeniu BLE.
 
-Pomysł użytkownika po pierwszych testach na sprzęcie — osobna zakładka, optymalizowana
-pod telefon w **poziomie**, pokazująca **jednocześnie kilka falowników** (np. 5) w formie
-tabeli/kafelków zamiast pojedynczej zakładki na raz jak dziś w "Falowniki". Dla każdego:
+**DO ZROBIENIA PRZED UŻYCIEM PRODUKCYJNYM — adresy pomiarowe NIEPOTWIERDZONE:**
+`MON-FREQ` (0h0312), `MON-CUR` (0h0311), `MON-VOLT` (0h0316) w katalogu (grupa "MON")
+odczytane z sekcji 7.6.1 manuala ("Monitoring Area Parameter"), ale ta tabela w PDF
+jest silnie połamana przez zawijanie kolumn (adresy/nazwy/bity statusu przemieszane) —
+**nie zweryfikowane sweepem na sprzęcie** jak reszta adresów w tym projekcie. Skala
+(x100 dla Hz, x10 dla prądu/napięcia) to też założenie, nie potwierdzone. W UI jest
+widoczny baner ostrzegawczy dopóki to się nie zmieni.
 
-- Częstotliwość (Hz) — odczyt live
-- Prędkość liniowa (m/min) — przeliczona z Hz przez współczynnik **konfigurowalny
-  per-falownik** (potwierdzone przez użytkownika: nie jest stały, różne mechanizmy mają
-  różne przełożenia/średnice rolek). Do dodania w ekranie Konfiguracji przy danym
-  falowniku, obok adresu Modbus.
-- Prąd, napięcie
-- Prąd wejścia analogowego (I2) — jeśli dotyczy danej instalacji
+Test do zrobienia: uruchom falownik na znanej częstotliwości/obciążeniu, porównaj
+`Podgląd` z klawiaturą/DriveView. Jeśli adresy złe — sweep okolicy `0h0300-0h031D`
+(jak przy `bA-10/11` i `SYS-FREQ`), potem poprawić 3 wpisy w katalogu.
 
-Wymagania funkcjonalne:
-- **Włącz/wyłącz** tryb podglądu osobnym przełącznikiem — używany PO zaprogramowaniu,
-  jako monitor pracy procesu, nie podczas konfiguracji
-- Cykliczne odpytywanie (polling) wybranych rejestrów dla wszystkich skonfigurowanych
-  falowników w pętli — częstotliwość odświeżania do ustalenia (Modbus przez BLE ma
-  ograniczoną przepustowość, przy 5 falownikach × kilka rejestrów każdy trzeba uważać
-  na czas pełnego cyklu)
-- Układ dostosowany do landscape na telefonie/tablecie (czytelna tabela/siatka, nie
-  pojedyncza kolumna jak w obecnym widoku pionowym)
-
-Do ustalenia przed implementacją: źródło rejestrów "prąd/napięcie/prąd analogowy" (czy
-z Monitoring area 0h0300+, czy z konkretnych PAR-owych parametrów już w katalogu),
-dokładna lista falowników do podglądu (wszystkie skonfigurowane, czy wybór), oraz
-wspomniany współczynnik Hz→m/min.
+Prąd wejścia analogowego (I2) — pominięty na razie, nie dodany do tabeli (nie było
+w pierwszej wersji adresów Monitoring Area, do rozważenia osobno jeśli potrzebny).

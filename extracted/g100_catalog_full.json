@@ -5294,5 +5294,47 @@
     "write_during_op": "O",
     "manual_page": "236",
     "usage_note": "POTWIERDZONE EMPIRYCZNIE 2026-09-04: sweep FC03 addr=0h0000 qty=16 po recznym wpisaniu 37.50 Hz na klawiaturze (Frq=Keypad-1) pokazal wartosc 3750 (37.50 x100) dokladnie na pozycji 0h0004. Manual cytuje ten rejestr jako '0h0005' - kolejny przypadek offsetu -1 wzgledem dokumentacji (ten sam wzorzec co w grupach PAR poza dr/SYS). Wczesniejsze proby (0h1D04 - procedura trwalego zapisu z sekcji 4.6, nie przetrwala power-cycle mimo sukcesu zapisu+SAVE; 0h0380 - przyjmowal zapis ale nie byl widoczny na wyswietlaczu) byly bledne, zastapione tym potwierdzonym adresem.\n\nKRYTYCZNY WARUNEK (potwierdzony empirycznie): zapis do 0h0004 dziala TYLKO gdy SYS-FRQSRC (0h1D03, zrodlo Frq) = 6 (Int 485). Przy Frq=0 (Keypad-1) zapis 'trzyma sie' Modbus-owo (ACK OK) ale falownik go ignoruje/nadpisuje wewnetrznie - bo oczekuje wartosci z klawiatury, nie z RS-485. UI musi ustawiac SYS-FRQSRC=6 (NIE 0!) przed zapisem czestotliwosci tutaj. Po takim zapisie falownik jest sterowany czestotliwosciowo przez RS-485 do czasu recznego przelaczenia z powrotem na Keypad-1.\n\nZapis tutaj jest ZYWY - wplywa na biezaca prace falownika od razu. Trwalosc po power-cycle NIE zweryfikowana (do przetestowania: napisz tu wartosc przy Frq=6, SAVE, power-cycle, sprawdz)."
+  },
+  {
+    "code": "MON-FREQ",
+    "group": "MON",
+    "group_name": "Monitoring (odczyt na żywo, tylko do odczytu, poza tabelami PAR)",
+    "register": "0h0312",
+    "pdu_address": "0h0312",
+    "name_approx": "Output frequency (częstotliwość wyjściowa, rzeczywista)",
+    "name_confidence": "manual_unverified_column_shifted",
+    "setting_range": "0.00",
+    "initial_value": "",
+    "write_during_op": "",
+    "manual_page": "230",
+    "usage_note": "NIEPOTWIERDZONE EMPIRYCZNIE (2026-09-07). Odczytane z sekcji 7.6.1 manuala 'Monitoring Area Parameter (Read Only)', ale tabela w PDF jest silnie polamana przez zawijanie kolumn (adresy, nazwy i bity statusu przemieszane) - to najlepszy odczyt, NIE zweryfikowany sweepem na sprzecie jak inne adresy w tym katalogu. Do potwierdzenia: uruchom falownik na znanej czestotliwosci, odczytaj ten rejestr, porownaj z wyswietlaczem. Uzyte przez zakladke Podglad (monitor.js)."
+  },
+  {
+    "code": "MON-CUR",
+    "group": "MON",
+    "group_name": "Monitoring (odczyt na żywo, tylko do odczytu, poza tabelami PAR)",
+    "register": "0h0311",
+    "pdu_address": "0h0311",
+    "name_approx": "Output current (prąd wyjściowy, rzeczywisty)",
+    "name_confidence": "manual_unverified_column_shifted",
+    "setting_range": "0.0",
+    "initial_value": "",
+    "write_during_op": "",
+    "manual_page": "230",
+    "usage_note": "NIEPOTWIERDZONE EMPIRYCZNIE (2026-09-07) - patrz usage_note w MON-FREQ, ten sam zastrzezenie. Skala x10 to zalozenie (typowa konwencja pradu w tym katalogu), nie potwierdzone dla tego konkretnego rejestru."
+  },
+  {
+    "code": "MON-VOLT",
+    "group": "MON",
+    "group_name": "Monitoring (odczyt na żywo, tylko do odczytu, poza tabelami PAR)",
+    "register": "0h0316",
+    "pdu_address": "0h0316",
+    "name_approx": "Output voltage (napięcie wyjściowe, rzeczywiste)",
+    "name_confidence": "manual_unverified_column_shifted",
+    "setting_range": "0.0",
+    "initial_value": "",
+    "write_during_op": "",
+    "manual_page": "230",
+    "usage_note": "NIEPOTWIERDZONE EMPIRYCZNIE (2026-09-07) - patrz usage_note w MON-FREQ, ten sam zastrzezenie. Skala x10 to zalozenie, nie potwierdzone dla tego konkretnego rejestru."
   }
 ]

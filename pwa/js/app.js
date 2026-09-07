@@ -4,7 +4,7 @@
 // Numer wersji widoczny w UI (górny pasek) — bump razem z CACHE_NAME w
 // service-worker.js przy każdym deployu, żeby dało się na oko sprawdzić
 // czy telefon faktycznie pobrał nową wersję.
-const APP_VERSION = 'v19';
+const APP_VERSION = 'v20';
 
 (async function () {
   document.getElementById('appVersion').textContent = APP_VERSION;
@@ -39,6 +39,7 @@ const APP_VERSION = 'v19';
       document.getElementById('view-' + btn.dataset.view).classList.add('active');
       if (btn.dataset.view === 'config') renderConfigScreen();
       if (btn.dataset.view === 'main') renderMainScreen();
+      if (btn.dataset.view === 'monitor') Monitor.render();
     });
   });
 
@@ -63,6 +64,7 @@ const APP_VERSION = 'v19';
   bleClient.onDisconnected = () => {
     updateBleStatusUI();
     renderMainScreen();
+    Monitor.stop();
   };
 
   async function doConnect() {
@@ -278,6 +280,10 @@ const APP_VERSION = 'v19';
         renderConfigScreen();
         renderMainScreen();
       },
+      onSetMPerMinFactor: (id, value) => {
+        const num = Scaling.parseLocaleFloat(value);
+        ConfigStore.updateInverter(id, { mPerMinFactor: Number.isFinite(num) ? num : undefined });
+      },
     });
 
     const select = document.getElementById('configInverterSelect');
@@ -343,6 +349,7 @@ const APP_VERSION = 'v19';
   bleClient.chunkSize = ConfigStore.getState().bleChunkSize;
   document.getElementById('navDebugBtn').hidden = !ConfigStore.getState().debugMode;
   DebugPanel.init(document.getElementById('debugPanelRoot'));
+  Monitor.init(document.getElementById('monitorRoot'));
 
   updateBleStatusUI();
   renderMainScreen();

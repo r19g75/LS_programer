@@ -2,7 +2,7 @@
 // strona nie potrzebuje sieci do komunikacji z ESP32, tylko do pierwszego
 // pobrania/aktualizacji.
 
-const CACHE_NAME = 'g100-programator-v19';
+const CACHE_NAME = 'g100-programator-v20';
 const ASSETS = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ const ASSETS = [
   './js/modbus-client.js',
   './js/ui.js',
   './js/debug-panel.js',
+  './js/monitor.js',
   './js/app.js',
   './data/g100_catalog_full.json',
   './icons/icon.svg',

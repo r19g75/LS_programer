@@ -180,6 +180,16 @@ const UI = (() => {
     for (const inv of inverters) {
       const item = el('div', { class: 'inverter-list-item' });
       item.appendChild(el('div', { class: 'grow' }, `${inv.name} — adres Modbus ${inv.modbusAddress}`));
+      const factorLabel = el('label', { class: 'mpermin-field' }, 'm/min na 1Hz:');
+      const factorInput = el('input', {
+        type: 'text',
+        inputmode: 'decimal',
+        value: inv.mPerMinFactor != null ? String(inv.mPerMinFactor) : '',
+        placeholder: 'np. 0.5',
+        onchange: (e) => handlers.onSetMPerMinFactor(inv.id, e.target.value),
+      });
+      factorLabel.appendChild(factorInput);
+      item.appendChild(factorLabel);
       item.appendChild(el('button', { class: 'btn btn-small btn-danger', onclick: () => handlers.onRemove(inv.id) }, 'Usuń'));
       container.appendChild(item);
     }

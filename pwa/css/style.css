@@ -162,6 +162,8 @@ main#app { padding: 14px; max-width: 1200px; margin: 0 auto; }
 .inverter-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .inverter-list-item { display: flex; align-items: center; gap: 10px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
 .inverter-list-item .grow { flex: 1; }
+.mpermin-field { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+.mpermin-field input { width: 64px; padding: 5px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
 
 .add-inverter-form { display: flex; flex-wrap: wrap; gap: 8px; }
 .add-inverter-form input { padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); }
@@ -228,4 +230,26 @@ main#app { padding: 14px; max-width: 1200px; margin: 0 auto; }
 
 @media (min-width: 1000px) {
   .param-row { grid-template-columns: 1fr 160px 110px; }
+}
+
+/* --- Podgląd (monitor procesu, wiele falowników) — czytelne w poziomie --- */
+.monitor-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  overflow-x: auto;
+  display: block;
+}
+.monitor-table thead, .monitor-table tbody { display: table; width: 100%; table-layout: fixed; }
+.monitor-table th, .monitor-table td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.monitor-table th { color: var(--accent); font-weight: 600; font-size: 13px; }
+.monitor-table td:first-child, .monitor-table th:first-child { width: 34%; }
+
+@media (orientation: landscape) {
+  .monitor-table th, .monitor-table td { font-size: 16px; padding: 12px 10px; }
 }
