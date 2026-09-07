@@ -62,9 +62,10 @@ pod telefon w **poziomie**, pokazująca **jednocześnie kilka falowników** (np.
 tabeli/kafelków zamiast pojedynczej zakładki na raz jak dziś w "Falowniki". Dla każdego:
 
 - Częstotliwość (Hz) — odczyt live
-- Prędkość liniowa (m/min) — przeliczona z Hz przez współczynnik (**do ustalenia z
-  użytkownikiem**: stały globalnie, czy per-falownik konfigurowalny — różne mechanizmy
-  mogą mieć różne przełożenia/średnice rolek)
+- Prędkość liniowa (m/min) — przeliczona z Hz przez współczynnik **konfigurowalny
+  per-falownik** (potwierdzone przez użytkownika: nie jest stały, różne mechanizmy mają
+  różne przełożenia/średnice rolek). Do dodania w ekranie Konfiguracji przy danym
+  falowniku, obok adresu Modbus.
 - Prąd, napięcie
 - Prąd wejścia analogowego (I2) — jeśli dotyczy danej instalacji
 
