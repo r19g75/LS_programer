@@ -90,7 +90,9 @@ const Monitor = (() => {
       tbody.appendChild(tr);
     }
     table.appendChild(tbody);
-    rootEl.appendChild(table);
+    const wrap = UI.el('div', { class: 'monitor-table-wrap' });
+    wrap.appendChild(table);
+    rootEl.appendChild(wrap);
   }
 
   function start() {

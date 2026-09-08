@@ -88,8 +88,7 @@ const UI = (() => {
     // SYS-FREQ — dedykowana akcja, nie checkbox (sekcja 4.5/4.6 spec)
     if (sysFreqEntry) {
       const box = el('div', { class: 'sysfreq-box' });
-      box.innerHTML = `<h4>Zapis częstotliwości zadanej (${sysFreqEntry.register})</h4>
-        <p class="hint-text">Żywy zapis, widoczny i skuteczny od razu (potwierdzone na sprzęcie). Automatycznie przełącza źródło Frq na <b>Int 485</b> — falownik przechodzi na sterowanie częstotliwością przez RS-485 (nie klawiaturę), dopóki nie przełączysz z powrotem. Trwałość po power-cycle NIEPOTWIERDZONA.</p>`;
+      box.innerHTML = `<h4>Zapis częstotliwości zadanej (${sysFreqEntry.register})</h4>`;
       const row = el('div', { class: 'sysfreq-row' });
       const freqInput = el('input', { type: 'text', inputmode: 'decimal', placeholder: 'Hz', id: 'sysFreqValueInput' });
       const writeBtn = el('button', {
@@ -195,29 +194,44 @@ const UI = (() => {
     }
   }
 
-  function renderConfigInverterSelect(selectEl, inverters, selectedId) {
-    selectEl.innerHTML = '';
+  // Lista falowników z checkboxami (multi-select — konfiguracja parametrów
+  // może dotyczyć kilku naraz, patrz renderParamCatalogCheckboxes).
+  function renderConfigInverterCheckboxes(container, inverters, selectedIds, onToggle) {
+    container.innerHTML = '';
+    const selectedSet = new Set(selectedIds);
     for (const inv of inverters) {
-      const opt = el('option', { value: inv.id, selected: inv.id === selectedId ? 'selected' : false }, `${inv.name} (#${inv.modbusAddress})`);
-      selectEl.appendChild(opt);
+      const row = el('div', { class: 'checkbox-row' });
+      const checkbox = el('input', {
+        type: 'checkbox',
+        checked: selectedSet.has(inv.id) ? 'checked' : false,
+        onchange: (e) => onToggle(inv.id, e.target.checked),
+      });
+      row.appendChild(checkbox);
+      row.appendChild(el('label', {}, `${inv.name} (#${inv.modbusAddress})`));
+      container.appendChild(row);
     }
   }
 
   // --- Ekran A: katalog parametrów z checkboxami ---
-  function renderParamCatalogCheckboxes(container, groupedEntries, selectedCodes, onToggle) {
+  // getCheckState(code) -> {checked, indeterminate} — pozwala odzwierciedlić
+  // stan gdy wybranych jest kilka falowników z różniącymi się zestawami
+  // parametrów (checked tylko gdy WSZYSTKIE wybrane mają dany kod, w innym
+  // razie indeterminate gdy ma go CHOĆ JEDEN, żeby było widać rozjazd).
+  function renderParamCatalogCheckboxes(container, groupedEntries, getCheckState, onToggle) {
     container.innerHTML = '';
-    const selectedSet = new Set(selectedCodes);
     for (const grp of groupedEntries) {
       const risky = Catalog.isRiskyGroup(grp.group);
       const groupEl = el('div', { class: 'param-group' + (risky ? ' risky' : '') });
       groupEl.appendChild(el('div', { class: 'param-group-title' }, `${grp.group} — ${grp.groupName}${risky ? ' ⚠ RYZYKOWNA' : ''}`));
       for (const entry of grp.entries) {
         const row = el('div', { class: 'checkbox-row' });
+        const { checked, indeterminate } = getCheckState(entry.code);
         const checkbox = el('input', {
           type: 'checkbox',
-          checked: selectedSet.has(entry.code) ? 'checked' : false,
+          checked: checked ? 'checked' : false,
           onchange: (e) => onToggle(entry.code, e.target.checked, risky),
         });
+        checkbox.indeterminate = !!indeterminate;
         row.appendChild(checkbox);
         row.appendChild(el('label', {}, `${entry.code} — ${entry.name_approx} (${entry.register})`));
         groupEl.appendChild(row);
@@ -233,7 +247,7 @@ const UI = (() => {
     renderInverterTabs,
     renderInverterPanel,
     renderInverterList,
-    renderConfigInverterSelect,
+    renderConfigInverterCheckboxes,
     renderParamCatalogCheckboxes,
   };
 })();

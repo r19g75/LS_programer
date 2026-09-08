@@ -4,7 +4,7 @@
 // Numer wersji widoczny w UI (górny pasek) — bump razem z CACHE_NAME w
 // service-worker.js przy każdym deployu, żeby dało się na oko sprawdzić
 // czy telefon faktycznie pobrał nową wersję.
-const APP_VERSION = 'v23';
+const APP_VERSION = 'v24';
 
 (async function () {
   document.getElementById('appVersion').textContent = APP_VERSION;
@@ -12,6 +12,7 @@ const APP_VERSION = 'v23';
   const state = {
     activeInverterId: null,
     perInverter: {}, // id -> {lastRead:{}, edited:{}, status:{}, sysFreqStatus:''}
+    configSelectedInverterIds: new Set(), // multi-select w ekranie Konfiguracja/Wybór parametrów
   };
 
   function invState(id) {
@@ -286,34 +287,50 @@ const APP_VERSION = 'v23';
       },
     });
 
-    const select = document.getElementById('configInverterSelect');
-    const prevSelected = select.value;
-    UI.renderConfigInverterSelect(select, cfg.inverters, prevSelected || (cfg.inverters[0] && cfg.inverters[0].id));
-    renderParamCatalogForSelectedInverter();
+    // Usuń z zaznaczenia falowniki, które już nie istnieją; jeśli nic nie
+    // zostało zaznaczone (pierwsze wejście na ekran), domyślnie zaznacz pierwszy.
+    const liveIds = new Set(cfg.inverters.map((i) => i.id));
+    for (const id of Array.from(state.configSelectedInverterIds)) {
+      if (!liveIds.has(id)) state.configSelectedInverterIds.delete(id);
+    }
+    if (state.configSelectedInverterIds.size === 0 && cfg.inverters.length > 0) {
+      state.configSelectedInverterIds.add(cfg.inverters[0].id);
+    }
+
+    UI.renderConfigInverterCheckboxes(document.getElementById('configInverterCheckboxes'), cfg.inverters, state.configSelectedInverterIds, (id, checked) => {
+      if (checked) state.configSelectedInverterIds.add(id); else state.configSelectedInverterIds.delete(id);
+      renderParamCatalogForSelectedInverters();
+    });
+    renderParamCatalogForSelectedInverters();
 
     document.getElementById('debugModeToggle').checked = cfg.debugMode;
     document.getElementById('navDebugBtn').hidden = !cfg.debugMode;
     document.getElementById('bleChunkSizeInput').value = cfg.bleChunkSize;
   }
 
-  function renderParamCatalogForSelectedInverter() {
-    const select = document.getElementById('configInverterSelect');
+  function renderParamCatalogForSelectedInverters() {
     const container = document.getElementById('paramCatalog');
-    const inverterId = select.value;
-    if (!inverterId) {
-      container.innerHTML = '<p class="empty-hint">Dodaj najpierw falownik.</p>';
+    const inverterIds = Array.from(state.configSelectedInverterIds);
+    if (inverterIds.length === 0) {
+      container.innerHTML = '<p class="empty-hint">Dodaj falownik i zaznacz go na liście powyżej.</p>';
       return;
     }
     const grouped = Catalog.groupBy(Catalog.selectableEntries());
-    const selected = ConfigStore.getSelectedParams(inverterId);
-    UI.renderParamCatalogCheckboxes(container, grouped, selected, (code, checked) => {
-      const current = new Set(ConfigStore.getSelectedParams(inverterId));
-      if (checked) current.add(code); else current.delete(code);
-      ConfigStore.setSelectedParams(inverterId, Array.from(current));
+    const getCheckState = (code) => {
+      let have = 0;
+      for (const id of inverterIds) {
+        if (ConfigStore.getSelectedParams(id).includes(code)) have++;
+      }
+      return { checked: have === inverterIds.length, indeterminate: have > 0 && have < inverterIds.length };
+    };
+    UI.renderParamCatalogCheckboxes(container, grouped, getCheckState, (code, checked) => {
+      for (const id of inverterIds) {
+        const current = new Set(ConfigStore.getSelectedParams(id));
+        if (checked) current.add(code); else current.delete(code);
+        ConfigStore.setSelectedParams(id, Array.from(current));
+      }
     });
   }
-
-  document.getElementById('configInverterSelect').addEventListener('change', renderParamCatalogForSelectedInverter);
 
   document.getElementById('addInverterForm').addEventListener('submit', (e) => {
     e.preventDefault();
