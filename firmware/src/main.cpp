@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <ArduinoOTA.h>
+#include <WebServer.h>
+#include <Update.h>
 #include <ArduinoJson.h>
 #include "../include/config.h"
 #include "modbus_rtu.h"
@@ -21,20 +22,63 @@ ProtocolHandler *protocol = nullptr;
 // sam po OTA_WINDOW_MS bez aktywnego transferu. To minimalizuje czas, przez
 // jaki ESP32 w ogóle ma otwartą sieć WiFi (powierzchnia ataku/obciążenie
 // radia) — normalna praca (BLE + Modbus) w ogóle jej nie potrzebuje.
+//
+// HTTP upload zamiast ArduinoOTA (2026-09-08): ArduinoOTA/espota.py wymaga,
+// żeby ESP32 "oddzwoniło" (połączenie zwrotne TCP) do komputera wgrywającego
+// firmware — Windows Firewall na sieci publicznej blokuje to domyślnie, a
+// naprawa (zmiana kategorii sieci na Prywatną albo reguła firewalla) wymaga
+// uprawnień administratora, których nie zawsze da się łatwo użyć. Zwykły
+// POST /update (multipart, pole "firmware") wymaga tylko połączenia
+// WYCHODZĄCEGO z komputera (jak zwykłe przeglądanie strony) — Windows tego
+// nie blokuje nigdy, więc działa bez żadnej konfiguracji po stronie klienta.
+WebServer otaServer(80);
 bool otaActive = false;
-bool otaInProgress = false; // true w trakcie faktycznego transferu firmware — nigdy nie gasić WiFi w tym czasie
+bool otaInProgress = false; // true w trakcie faktycznego zapisu firmware — nigdy nie gasić WiFi w tym czasie
+bool otaUploadAuthOk = false;
 uint32_t otaActiveUntilMs = 0;
+
+void handleOtaRoot() {
+    otaServer.send(200, "text/plain", "G100 Programator OTA — POST /update (multipart, pole \"firmware\")");
+}
+
+void handleOtaUploadChunk() {
+    HTTPUpload &upload = otaServer.upload();
+    if (upload.status == UPLOAD_FILE_START) {
+        otaUploadAuthOk = (strlen(OTA_PASSWORD) == 0) || (otaServer.header("X-OTA-Password") == OTA_PASSWORD);
+        if (!otaUploadAuthOk) return; // odrzucone dopiero w handleOtaUploadDone (upload i tak trzeba wchłonąć)
+        otaInProgress = true;
+        Update.begin(UPDATE_SIZE_UNKNOWN);
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+        if (otaUploadAuthOk) Update.write(upload.buf, upload.currentSize);
+    } else if (upload.status == UPLOAD_FILE_END) {
+        if (otaUploadAuthOk) Update.end(true);
+        otaInProgress = false;
+    } else if (upload.status == UPLOAD_FILE_ABORTED) {
+        if (otaUploadAuthOk) Update.end(false);
+        otaInProgress = false;
+    }
+}
+
+void handleOtaUploadDone() {
+    if (!otaUploadAuthOk) {
+        otaServer.send(401, "text/plain", "zle haslo (X-OTA-Password)");
+        return;
+    }
+    bool ok = !Update.hasError();
+    otaServer.send(200, "text/plain", ok ? "OK, restart..." : "BLAD zapisu firmware");
+    if (ok) {
+        delay(300);
+        ESP.restart();
+    }
+}
 
 void startOtaWindow() {
     if (!otaActive) {
         WiFi.mode(WIFI_AP);
         WiFi.softAP(OTA_AP_SSID, OTA_AP_PASSWORD);
-        ArduinoOTA.setHostname(OTA_HOSTNAME);
-        if (strlen(OTA_PASSWORD) > 0) ArduinoOTA.setPassword(OTA_PASSWORD);
-        ArduinoOTA.onStart([]() { otaInProgress = true; });
-        ArduinoOTA.onEnd([]() { otaInProgress = false; });
-        ArduinoOTA.onError([](ota_error_t) { otaInProgress = false; });
-        ArduinoOTA.begin();
+        otaServer.on("/", HTTP_GET, handleOtaRoot);
+        otaServer.on("/update", HTTP_POST, handleOtaUploadDone, handleOtaUploadChunk);
+        otaServer.begin();
         otaActive = true;
     }
     otaActiveUntilMs = millis() + OTA_WINDOW_MS;
@@ -42,7 +86,7 @@ void startOtaWindow() {
 
 void stopOtaWindow() {
     if (!otaActive || otaInProgress) return; // nigdy nie gasić WiFi w trakcie faktycznego zapisu firmware
-    ArduinoOTA.end();
+    otaServer.stop();
     WiFi.softAPdisconnect(true);
     WiFi.mode(WIFI_OFF);
     otaActive = false;
@@ -102,7 +146,7 @@ void loop() {
     // Cała logika Modbus/BLE jest event-driven (callbacki) — loop() tylko
     // dogląda OTA, gdy jest aktywne (poza tym nic nie robi, WiFi wyłączone).
     if (otaActive) {
-        ArduinoOTA.handle();
+        otaServer.handleClient();
         if (!otaInProgress && (int32_t)(millis() - otaActiveUntilMs) > 0) {
             stopOtaWindow();
         }
