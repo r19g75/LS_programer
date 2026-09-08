@@ -19,7 +19,7 @@ Programator falowników LS Electric G100 przez RS-485/Modbus RTU, obsługiwany z
 - **NimBLE** (BLE GATT) do komunikacji z telefonem, JSON request/response z fragmentacją dopasowaną do MTU
 - Własny Modbus RTU master: CRC16, FC03/FC04 (odczyt), FC06/FC16 (zapis, z weryfikacją echa adresu/wartości)
 - RS-485 na **UART0** (dzielone z USB — przełącznik wybiera tryb), DE/RE na **GPIO2**
-- **OTA przez WiFi** (2026-09-08): po jednorazowym wgraniu tej wersji przez USB, kolejne aktualizacje firmware idą przez WiFi (`ArduinoOTA`) — bez kabla i bez przełącznika. WiFi/OTA są best-effort, opcjonalne i asynchroniczne (dane logowania w `firmware/include/wifi_secrets.h`, **gitignored**, NIE trafiają do publicznego repo) — brak sieci nie wpływa na BLE/Modbus, bo działają całkowicie niezależnie
+- **OTA przez własny WiFi AP, na żądanie** (2026-09-08): po jednorazowym wgraniu tej wersji przez USB, kolejne aktualizacje idą przez WiFi (`ArduinoOTA`) — bez kabla i bez przełącznika. WiFi AP jest **domyślnie wyłączone** (nie startuje przy boocie) — uruchamia je dopiero komenda BLE `ota_enable` (przycisk w PWA, panel Debug), aktywne ~10 min albo do końca trwającego transferu, potem gaśnie samo (albo ręcznie przez `ota_disable`) — minimalizuje czas ekspozycji sieci. SSID/hasło AP mają bezpieczne domyślne wartości w `config.h`, nadpisywalne lokalnie przez `firmware/include/wifi_secrets.h` (**gitignored**, NIE trafia do publicznego repo). BLE/Modbus działają całkowicie niezależnie od WiFi. **Uwaga na zapas pamięci Flash**: włączenie WiFi AP podniosło zużycie Flash z 57% do **94.5%** (partycja OTA, ~71KB wolnego miejsca) — niewiele przestrzeni na dalszy rozrost firmware
 
 ## PWA (`pwa/`, hostowana na GitHub Pages)
 

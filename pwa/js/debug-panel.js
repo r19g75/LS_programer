@@ -3,9 +3,68 @@
 // osobnego testera. Widoczny tylko gdy włączony tryb Debug w Konfiguracji.
 
 const DebugPanel = (() => {
+  let otaSeqCounter = 900000; // pula osobna od ModbusClient.nextSeq() — komendy ota_* nie są Modbusem
+
   function log(container, line) {
     const time = new Date().toLocaleTimeString();
     container.textContent = `[${time}] ${line}\n` + container.textContent;
+  }
+
+  // OTA WiFi jest domyślnie WYŁĄCZONE w firmware (patrz main.cpp) — startuje
+  // dopiero na te komendy i gaśnie samo po ok. 10 minutach bez aktywnego
+  // transferu, żeby nie stać cały czas otwarte jako niepotrzebna powierzchnia
+  // ataku/obciążenie radia BLE.
+  function initOtaControls(root, logEl) {
+    const box = document.createElement('div');
+    box.className = 'ota-controls';
+
+    const title = document.createElement('h3');
+    title.textContent = 'OTA — aktualizacja firmware przez WiFi';
+    box.appendChild(title);
+
+    const hint = document.createElement('p');
+    hint.className = 'hint-text';
+    hint.textContent = 'WiFi jest domyślnie wyłączone. "Włącz OTA" otwiera własny AP falownika na ~10 minut (albo do końca trwającego transferu) — dopiero wtedy pio run -e esp32dev_ota -t upload może wgrać nowy firmware.';
+    box.appendChild(hint);
+
+    const btnRow = document.createElement('div');
+    btnRow.className = 'workflow-bar';
+
+    const enableBtn = document.createElement('button');
+    enableBtn.className = 'btn btn-primary';
+    enableBtn.textContent = 'Włącz OTA (10 min)';
+    enableBtn.addEventListener('click', () => sendOtaCommand('ota_enable', logEl));
+
+    const disableBtn = document.createElement('button');
+    disableBtn.className = 'btn';
+    disableBtn.textContent = 'Wyłącz OTA teraz';
+    disableBtn.addEventListener('click', () => sendOtaCommand('ota_disable', logEl));
+
+    btnRow.appendChild(enableBtn);
+    btnRow.appendChild(disableBtn);
+    box.appendChild(btnRow);
+    root.appendChild(box);
+  }
+
+  async function sendOtaCommand(op, logEl) {
+    if (!bleClient.connected) {
+      log(logEl, 'BŁĄD: brak połączenia BLE. Użyj CONNECT w górnym pasku.');
+      return;
+    }
+    const seq = otaSeqCounter++;
+    log(logEl, `-> ${op}`);
+    try {
+      const resp = await bleClient.sendRequest({ seq, op });
+      if (!resp.ok) {
+        log(logEl, `<- BŁĄD: ${resp.error || 'nieznany błąd'}`);
+      } else if (op === 'ota_enable') {
+        log(logEl, `<- OK: AP "${resp.ap_ssid}" aktywny przez ${resp.window_s}s — połącz się z nim i uruchom "pio run -e esp32dev_ota -t upload"`);
+      } else {
+        log(logEl, `<- OK: OTA ${resp.ota_active ? 'nadal aktywne (trwa transfer, nie przerwano)' : 'wyłączone'}`);
+      }
+    } catch (e) {
+      log(logEl, 'WYJĄTEK: ' + e.message);
+    }
   }
 
   function init(root) {
@@ -46,6 +105,8 @@ const DebugPanel = (() => {
     logEl.id = 'debugResultLog';
     logEl.style.marginTop = '10px';
     root.appendChild(logEl);
+
+    initOtaControls(root, logEl);
 
     sendBtn.addEventListener('click', async () => {
       if (!bleClient.connected) {

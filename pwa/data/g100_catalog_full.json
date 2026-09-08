@@ -5428,11 +5428,11 @@
     "register": "0h0013",
     "pdu_address": "0h0013",
     "name_approx": "I2 poziom wejścia analogowego (%)",
-    "name_confidence": "not_yet_swept",
+    "name_confidence": "hypothesis_plausible_unconfirmed",
     "setting_range": "0.00",
     "initial_value": "",
     "write_during_op": "",
     "manual_page": "",
-    "usage_note": "NIE ZAMIETONE JESZCZE SWEEPEM (2026-09-07): ostatni sweep siegnal tylko do 0h0012 (qty=16 od 0h0004 zwrocilo 15 wartosci, ucniete). DO ZROBIENIA: sweep addr=0h0004 qty=17 (lub wiecej) zeby zlapac ten rejestr. Dla dokladnej wartosci w mA patrz In-50 (0h1531, juz istniejacy zweryfikowany wpis PDF)."
+    "usage_note": "NIEPOTWIERDZONE OSOBNO (2026-09-08). Wczesniejsza notatka 'sweep qty=16 zwrocil tylko 15 wartosci' zostala zweryfikowana pod katem bledu w firmware (protocol.cpp/modbus_rtu.cpp, audyt kodu) - kod moze zwrocic WYLACZNIE pelne qty albo jawny blad, nigdy cicho ucieta tablice, wiec ten rejestr NAJPRAWDOPODOBNIEJ byl odczytany poprawnie, a '15 zamiast 16' to byl blad przy recznym przepisywaniu wartosci ze zdjecia ekranu, nie realny problem. monitor.js (batch read qty=16 od 0h0004) i tak go obejmuje - do potwierdzenia przy najblizszym live-teście Podgladu w stanie RUN, bez potrzeby osobnego sweepu. Dla dokladnej wartosci w mA patrz In-50 (0h1531, juz istniejacy zweryfikowany wpis PDF)."
   }
 ]

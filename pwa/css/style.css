@@ -197,6 +197,10 @@ main#app { padding: 14px; max-width: 1200px; margin: 0 auto; }
 .debug-form input { padding: 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); }
 #debugResultLog { background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 12px; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
 
+.ota-controls { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; }
+.ota-controls h3 { margin: 0 0 6px; font-size: 15px; }
+.ota-controls .workflow-bar { margin-top: 8px; }
+
 /* ============ RESPONSYWNOŚĆ (sekcja 5.2 spec) ============ */
 
 /* Telefon, portrait: ~360-430px — pasek zakładek przewijany poziomo (już domyślnie), panel pełna szerokość */

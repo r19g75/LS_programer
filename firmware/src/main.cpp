@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ArduinoOTA.h>
+#include <ArduinoJson.h>
 #include "../include/config.h"
 #include "modbus_rtu.h"
 #include "ble_gateway.h"
@@ -15,25 +16,67 @@ ModbusRtu modbus;
 BleGateway ble;
 ProtocolHandler *protocol = nullptr;
 
-bool otaStarted = false; // ArduinoOTA.begin() wywoływane leniwie, dopiero po faktycznym połączeniu WiFi
+// OTA WiFi AP jest domyślnie WYŁĄCZONY (patrz config.h) — nie startuje przy
+// boocie, tylko na żądanie z telefonu (komenda BLE "ota_enable"), i gaśnie
+// sam po OTA_WINDOW_MS bez aktywnego transferu. To minimalizuje czas, przez
+// jaki ESP32 w ogóle ma otwartą sieć WiFi (powierzchnia ataku/obciążenie
+// radia) — normalna praca (BLE + Modbus) w ogóle jej nie potrzebuje.
+bool otaActive = false;
+bool otaInProgress = false; // true w trakcie faktycznego transferu firmware — nigdy nie gasić WiFi w tym czasie
+uint32_t otaActiveUntilMs = 0;
 
-void onBleMessage(const String &requestJson) {
-    String response = protocol->handleRequest(requestJson);
-    ble.sendResponse(response);
-}
-
-// WiFi/OTA są best-effort i asynchroniczne — brak sieci (albo jej zanik) NIE
-// blokuje ani nie spowalnia BLE/Modbus, które działają całkowicie niezależnie.
-void wifiOtaTick() {
-    if (strlen(WIFI_SSID) == 0) return; // WiFi nieskonfigurowane (brak wifi_secrets.h) — nic do zrobienia
-
-    if (!otaStarted && WiFi.status() == WL_CONNECTED) {
+void startOtaWindow() {
+    if (!otaActive) {
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP(OTA_AP_SSID, OTA_AP_PASSWORD);
         ArduinoOTA.setHostname(OTA_HOSTNAME);
         if (strlen(OTA_PASSWORD) > 0) ArduinoOTA.setPassword(OTA_PASSWORD);
+        ArduinoOTA.onStart([]() { otaInProgress = true; });
+        ArduinoOTA.onEnd([]() { otaInProgress = false; });
+        ArduinoOTA.onError([](ota_error_t) { otaInProgress = false; });
         ArduinoOTA.begin();
-        otaStarted = true;
+        otaActive = true;
     }
-    if (otaStarted) ArduinoOTA.handle();
+    otaActiveUntilMs = millis() + OTA_WINDOW_MS;
+}
+
+void stopOtaWindow() {
+    if (!otaActive || otaInProgress) return; // nigdy nie gasić WiFi w trakcie faktycznego zapisu firmware
+    ArduinoOTA.end();
+    WiFi.softAPdisconnect(true);
+    WiFi.mode(WIFI_OFF);
+    otaActive = false;
+}
+
+void onBleMessage(const String &requestJson) {
+    // "ota_enable"/"ota_disable" to komendy poza zwykłym Modbus (nie mają
+    // slave/addr/fc) — obsłużone tutaj, nie w protocol.cpp, żeby nie mieszać
+    // WiFi do logiki czysto-Modbusowej. Reszta requestów idzie do protocol
+    // jak dotychczas, bez zmian.
+    JsonDocument doc;
+    if (deserializeJson(doc, requestJson) == DeserializationError::Ok) {
+        const char *op = doc["op"] | "";
+        long seq = doc["seq"] | -1;
+        if (strcmp(op, "ota_enable") == 0 || strcmp(op, "ota_disable") == 0) {
+            JsonDocument resp;
+            resp["seq"] = seq;
+            resp["ok"] = true;
+            if (strcmp(op, "ota_enable") == 0) {
+                startOtaWindow();
+                resp["ap_ssid"] = OTA_AP_SSID;
+                resp["window_s"] = OTA_WINDOW_MS / 1000;
+            } else {
+                stopOtaWindow();
+                resp["ota_active"] = otaActive; // false chyba ze transfer wlasnie trwa (patrz stopOtaWindow)
+            }
+            String out;
+            serializeJson(resp, out);
+            ble.sendResponse(out);
+            return;
+        }
+    }
+    String response = protocol->handleRequest(requestJson);
+    ble.sendResponse(response);
 }
 
 void setup() {
@@ -51,19 +94,18 @@ void setup() {
     ble.setOnMessage(onBleMessage);
     ble.begin();
 
-    // WiFi (opcjonalne, tylko do OTA — patrz config.h/wifi_secrets.h.example).
-    // WiFi.begin() NIE blokuje — łączenie w tle, ArduinoOTA.begin() startuje
-    // dopiero gdy faktycznie połączy (wifiOtaTick() w loop()). Jeśli WIFI_SSID
-    // jest puste (brak wifi_secrets.h), nic się tu nie dzieje.
-    if (strlen(WIFI_SSID) > 0) {
-        WiFi.mode(WIFI_STA);
-        WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    }
+    // WiFi/OTA celowo NIE startuje tutaj — patrz startOtaWindow()/komentarz
+    // przy otaActive wyżej. Domyślny stan po boocie: WiFi całkowicie wyłączone.
 }
 
 void loop() {
     // Cała logika Modbus/BLE jest event-driven (callbacki) — loop() tylko
-    // dogląda WiFi/OTA, co jest tanie (kilka sprawdzeń stanu) gdy nic się nie dzieje.
-    wifiOtaTick();
+    // dogląda OTA, gdy jest aktywne (poza tym nic nie robi, WiFi wyłączone).
+    if (otaActive) {
+        ArduinoOTA.handle();
+        if (!otaInProgress && (int32_t)(millis() - otaActiveUntilMs) > 0) {
+            stopOtaWindow();
+        }
+    }
     delay(10);
 }

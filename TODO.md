@@ -78,8 +78,11 @@ warto zrobić dokładniejsze porównanie liczba-do-liczby).
 **Nadal otwarte:** `MON-STATUS` (0h000D) to surowy bitfield, niezdekodowany — sweep w
 STOP dał `0x4001`, znaczenie poszczególnych bitów do ustalenia porównaniem stanów
 STOP/RUN FWD/RUN REV/TRIP. `MON-V1`/`MON-V0` (%) nie mają bezpośredniego odpowiednika
-na klawiaturze do porównania — orientacyjne. `MON-I2` (0h0013) w ogóle jeszcze nie był
-w zasięgu żadnego sweepu (poprzedni debug-sweep qty=16 zwrócił tylko 15 wartości), choć
-batch-read w `monitor.js` (qty=16 od 0h0004) go obejmuje. Dokładne wartości V1/V0/I2 w
+na klawiaturze do porównania — orientacyjne. `MON-I2` (0h0013) — wcześniejsza notatka "sweep qty=16 zwrócił tylko 15 wartości" została
+zweryfikowana pod kątem błędu w firmware (audyt kodu 2026-09-08, `protocol.cpp`/
+`modbus_rtu.cpp`): kod może zwrócić WYŁĄCZNIE pełne `qty` albo jawny błąd, nigdy cicho
+uciętą tablicę, więc to najprawdopodobniej był błąd ręcznego przepisania wartości ze
+zdjęcia ekranu, nie realny problem — `monitor.js` (batch read qty=16 od 0h0004) i tak
+obejmuje ten rejestr, do potwierdzenia przy najbliższym live-teście w stanie RUN. Dokładne wartości V1/V0/I2 w
 natywnych jednostkach (V/V/mA) czytane osobno przez już zweryfikowane wpisy
 `In-05`/`In-35`/`In-50` (offset -1 standardowy, grupa "In").

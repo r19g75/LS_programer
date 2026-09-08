@@ -32,25 +32,34 @@
 #define BLE_FRAGMENT_HEADER_LEN     5      // seq(1) + total_len(2) + offset(2)
 #define BLE_MAX_MESSAGE_LEN         4096   // bezpieczny górny limit pojedynczego JSON-a request/response
 
-// WiFi + OTA (aktualizacja firmware bez kabla, 2026-09-08). Dane logowania
-// WiFi NIE są w tym pliku (trafiłby do repo Git) — patrz
-// firmware/include/wifi_secrets.h.example. Jeśli wifi_secrets.h nie istnieje
-// (lokalny plik, gitignored), firmware kompiluje się i działa normalnie, po
-// prostu bez WiFi/OTA — BLE i Modbus są od WiFi całkowicie niezależne
-// (main.cpp nie czeka na połączenie WiFi, RS-485 dalej wisi na UART0 jak
-// zawsze, WiFi/OTA nigdy nie dotyka tych samych pinów).
+// OTA przez własny WiFi Access Point (2026-09-08, poprawione z pierwszej wersji
+// STA — nie wymaga dołączania do istniejącej sieci w miejscu instalacji, tak
+// jak inne projekty ESP tego użytkownika: Oświetlacz-IR, OBI-ESP32,
+// Czujnik-Rura-AP). ESP32 tworzy WŁASNĄ sieć WiFi — telefon/PC łączy się z
+// NIĄ, żeby wgrać nowy firmware. Domyślne SSID/hasło poniżej działają "out of
+// the box" bez żadnego dodatkowego pliku, ale MOŻNA je nadpisać lokalnie przez
+// firmware/include/wifi_secrets.h (gitignored, patrz .example) — przydatne
+// jeśli chcesz silniejsze hasło niż domyślne (repo jest publiczne).
+// BLE i Modbus są od WiFi całkowicie niezależne — RS-485 dalej wisi na UART0
+// jak zawsze, WiFi/OTA nigdy nie dotyka tych samych pinów.
 #if __has_include("wifi_secrets.h")
 #include "wifi_secrets.h"
 #endif
-#ifndef WIFI_SSID
-#define WIFI_SSID       ""
+#ifndef OTA_AP_SSID
+#define OTA_AP_SSID     "G100-Programator-OTA"
 #endif
-#ifndef WIFI_PASSWORD
-#define WIFI_PASSWORD   ""
+#ifndef OTA_AP_PASSWORD
+#define OTA_AP_PASSWORD "g100programator" // min. 8 znakow (wymog WiFi AP), zmien w wifi_secrets.h
 #endif
 #ifndef OTA_HOSTNAME
 #define OTA_HOSTNAME    "g100-programator"
 #endif
 #ifndef OTA_PASSWORD
-#define OTA_PASSWORD    ""
+#define OTA_PASSWORD    "" // opcjonalne haslo samego kanalu OTA, osobne od hasla AP
 #endif
+
+// WiFi AP jest domyslnie WYLACZONY (nie startuje przy boocie) — wlacza go
+// dopiero komenda BLE "ota_enable" (patrz main.cpp), zeby nie stal caly czas
+// wlaczony jako niepotrzebna powierzchnia ataku/obciazenie radia. Po tym
+// czasie bez aktywnego transferu OTA wylacza sie sam automatycznie.
+#define OTA_WINDOW_MS   (10UL * 60UL * 1000UL) // 10 minut
