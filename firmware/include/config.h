@@ -32,6 +32,25 @@
 #define BLE_FRAGMENT_HEADER_LEN     5      // seq(1) + total_len(2) + offset(2)
 #define BLE_MAX_MESSAGE_LEN         4096   // bezpieczny górny limit pojedynczego JSON-a request/response
 
-// OTA — poza MVP. Miejsce zarezerwowane w architekturze na przyszły kanał
-// aktualizacji (BLE DFU lub WiFi tylko do celów update, patrz sekcja 6.2 spec).
-// Celowo NIE zaimplementowane w tym etapie.
+// WiFi + OTA (aktualizacja firmware bez kabla, 2026-09-08). Dane logowania
+// WiFi NIE są w tym pliku (trafiłby do repo Git) — patrz
+// firmware/include/wifi_secrets.h.example. Jeśli wifi_secrets.h nie istnieje
+// (lokalny plik, gitignored), firmware kompiluje się i działa normalnie, po
+// prostu bez WiFi/OTA — BLE i Modbus są od WiFi całkowicie niezależne
+// (main.cpp nie czeka na połączenie WiFi, RS-485 dalej wisi na UART0 jak
+// zawsze, WiFi/OTA nigdy nie dotyka tych samych pinów).
+#if __has_include("wifi_secrets.h")
+#include "wifi_secrets.h"
+#endif
+#ifndef WIFI_SSID
+#define WIFI_SSID       ""
+#endif
+#ifndef WIFI_PASSWORD
+#define WIFI_PASSWORD   ""
+#endif
+#ifndef OTA_HOSTNAME
+#define OTA_HOSTNAME    "g100-programator"
+#endif
+#ifndef OTA_PASSWORD
+#define OTA_PASSWORD    ""
+#endif

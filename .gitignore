@@ -1,0 +1,6 @@
+# PlatformIO build artifacts
+firmware/.pio/
+
+# Dane logowania WiFi/OTA — NIE trafiają do (publicznego) repo.
+# Skopiuj firmware/include/wifi_secrets.h.example -> wifi_secrets.h i wypełnij lokalnie.
+firmware/include/wifi_secrets.h
